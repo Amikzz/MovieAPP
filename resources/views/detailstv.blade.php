@@ -1,17 +1,15 @@
-{{-- resources/views/movie-details.blade.php --}}
+{{-- resources/views/tvshow-details.blade.php --}}
     <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $movie['title'] ?? $movie['name'] }} - MovieApp</title>
+    <title>{{ $tvShow['name'] }} - MovieApp</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
-            darkMode: 'media', // ✅ follows system preference
-        }
+        tailwind.config = { darkMode: 'media' }; // follows system theme
     </script>
 
     <!-- Heroicons -->
@@ -24,10 +22,7 @@
     <style>
         body { font-family: 'instrument-sans', sans-serif; }
         .cast-scroll::-webkit-scrollbar { height: 6px; }
-        .cast-scroll::-webkit-scrollbar-thumb {
-            background-color: #e50914;
-            border-radius: 10px;
-        }
+        .cast-scroll::-webkit-scrollbar-thumb { background-color: #e50914; border-radius: 10px; }
         .loader {
             border: 4px solid #ddd;
             border-top: 4px solid #e50914;
@@ -36,20 +31,15 @@
             height: 40px;
             animation: spin 1s linear infinite;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-
 <body class="min-h-screen
              bg-gradient-to-br from-white via-gray-100 to-gray-200 text-black
              dark:bg-gradient-to-br dark:from-[#0f0f0f] dark:via-[#1a1a1a] dark:to-[#0a0a0a] dark:text-white">
 
 <!-- Loader -->
-<div id="loader" class="fixed inset-0 flex items-center justify-center
-    bg-white dark:bg-black z-[100] transition-opacity duration-500">
+<div id="loader" class="fixed inset-0 flex items-center justify-center bg-white dark:bg-black z-[100] transition-opacity duration-500">
     <div class="loader"></div>
 </div>
 
@@ -63,43 +53,39 @@
         </button>
     </div>
 
-    <!-- Movie Banner -->
+    <!-- TV Show Banner -->
     <div class="max-w-7xl mx-auto px-8">
         <div class="relative w-full rounded-3xl shadow-xl overflow-hidden animate-fadeIn">
-            <img src="https://image.tmdb.org/t/p/original{{ $movie['backdrop_path'] ?? $movie['poster_path'] }}"
-                 alt="{{ $movie['title'] ?? $movie['name'] }}"
+            <img src="https://image.tmdb.org/t/p/original{{ $tvShow['backdrop_path'] ?? $tvShow['poster_path'] }}"
+                 alt="{{ $tvShow['name'] }}"
                  class="w-full h-96 md:h-[600px] object-cover">
             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent flex items-end p-6">
                 <div class="max-w-4xl">
                     <h1 class="text-3xl md:text-5xl font-bold text-white drop-shadow-lg">
-                        {{ $movie['title'] ?? $movie['name'] }}
+                        {{ $tvShow['name'] }}
                     </h1>
                     <p class="text-gray-200 mt-2 md:text-lg drop-shadow">
-                        {{ $movie['overview'] ?? 'No description available.' }}
+                        {{ $tvShow['overview'] ?? 'No description available.' }}
                     </p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Movie Stats -->
+    <!-- TV Show Stats -->
     <div class="max-w-7xl mx-auto px-8 py-8 mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 animate-fadeUp delay-200">
         @php
             $stats = [
-                ['icon' => 'calendar', 'label' => 'Release Date', 'value' => $movie['release_date'] ?? 'N/A'],
-                ['icon' => 'tag', 'label' => 'Genre', 'value' => !empty($movie['genres']) ? implode(', ', array_column($movie['genres'], 'name')) : 'N/A'],
-                ['icon' => 'clock', 'label' => 'Runtime', 'value' => ($movie['runtime'] ?? 'N/A') . ' min'],
-                ['icon' => 'star', 'label' => 'Rating', 'value' => $movie['vote_average'] ?? 'N/A'],
-                ['icon' => 'globe', 'label' => 'Language', 'value' => strtoupper($movie['original_language'] ?? 'N/A')],
-                ['icon' => 'film', 'label' => 'Status', 'value' => $movie['status'] ?? 'N/A'],
+                ['icon' => 'calendar', 'label' => 'First Air Date', 'value' => $tvShow['first_air_date'] ?? 'N/A'],
+                ['icon' => 'calendar', 'label' => 'Last Air Date', 'value' => $tvShow['last_air_date'] ?? 'N/A'],
+                ['icon' => 'tag', 'label' => 'Genres', 'value' => !empty($tvShow['genres']) ? implode(', ', array_column($tvShow['genres'], 'name')) : 'N/A'],
+                ['icon' => 'star', 'label' => 'Rating', 'value' => $tvShow['vote_average'] ?? 'N/A'],
+                ['icon' => 'film', 'label' => 'Status', 'value' => $tvShow['status'] ?? 'N/A'],
+                ['icon' => 'users', 'label' => 'Created By', 'value' => !empty($tvShow['created_by']) ? implode(', ', array_column($tvShow['created_by'], 'name')) : 'N/A'],
             ];
         @endphp
         @foreach($stats as $stat)
-            <div class="flex items-center gap-3
-            bg-white dark:bg-black/90
-            rounded-xl p-5 shadow
-            hover:scale-105 transition
-            border border-gray-200 dark:border-gray-800">
+            <div class="flex items-center gap-3 bg-white dark:bg-black/90 rounded-xl p-5 shadow hover:scale-105 transition border border-gray-200 dark:border-gray-800">
                 <i data-feather="{{ $stat['icon'] }}" class="text-[#e50914]"></i>
                 <div>
                     <h3 class="font-semibold text-gray-600 dark:text-gray-300">{{ $stat['label'] }}</h3>
@@ -110,11 +96,11 @@
     </div>
 
     <!-- Cast -->
-    @if(!empty($movie['credits']['cast']))
+    @if(!empty($tvShow['credits']['cast']))
         <div class="max-w-7xl mx-auto px-8 py-6 mt-10 animate-fadeUp delay-300">
             <h2 class="text-2xl font-semibold mb-4">Top Billed Cast</h2>
             <div class="flex gap-4 overflow-x-auto cast-scroll pb-2">
-                @foreach(array_slice($movie['credits']['cast'], 0, 10) as $cast)
+                @foreach(array_slice($tvShow['credits']['cast'], 0, 10) as $cast)
                     <div class="w-28 text-center flex-shrink-0">
                         <img src="https://image.tmdb.org/t/p/w200{{ $cast['profile_path'] ?? '' }}"
                              alt="{{ $cast['name'] }}"
@@ -127,13 +113,32 @@
         </div>
     @endif
 
+    <!-- Seasons & Episodes -->
+    @if(!empty($tvShow['seasons']))
+        <div class="max-w-7xl mx-auto px-8 py-6 mt-10 animate-fadeUp delay-400">
+            <h2 class="text-2xl font-semibold mb-4">Seasons</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                @foreach($tvShow['seasons'] as $season)
+                    <div class="bg-white dark:bg-black/90 rounded-xl p-4 shadow border border-gray-200 dark:border-gray-800">
+                        <img src="https://image.tmdb.org/t/p/w300{{ $season['poster_path'] ?? '' }}"
+                             alt="{{ $season['name'] }}"
+                             class="rounded-lg mb-2 w-full h-48 object-cover">
+                        <h3 class="font-semibold text-gray-800 dark:text-gray-200">{{ $season['name'] }}</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $season['air_date'] ?? 'N/A' }}</p>
+                        <p class="text-gray-900 dark:text-gray-200 text-sm mt-1">{{ $season['episode_count'] ?? 0 }} Episodes</p>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     <!-- Trailer -->
-    @if(!empty($movie['videos']['results']))
+    @if(!empty($tvShow['videos']['results']))
         @php
-            $trailer = collect($movie['videos']['results'])
+            $trailer = collect($tvShow['videos']['results'])
                         ->firstWhere('type', 'Trailer')
-                        ?? collect($movie['videos']['results'])->firstWhere('type', 'Teaser')
-                        ?? $movie['videos']['results'][0] ?? null;
+                        ?? collect($tvShow['videos']['results'])->firstWhere('type', 'Teaser')
+                        ?? $tvShow['videos']['results'][0] ?? null;
 
             $embedUrl = null;
 
@@ -152,7 +157,7 @@
                 <div class="relative aspect-video rounded-xl overflow-hidden shadow-lg">
                     <iframe class="w-full h-full"
                             src="{{ $embedUrl }}"
-                            title="Movie Trailer"
+                            title="TV Show Trailer"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen>
                     </iframe>
@@ -160,7 +165,6 @@
             </div>
         @endif
     @endif
-
 
 </main>
 

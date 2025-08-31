@@ -98,7 +98,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified Movie resources.
      */
     public function showMovie(string $id): View|Factory
     {
@@ -143,6 +143,54 @@ class DashboardController extends Controller
 
         // ✅ Return the movie-details view
         return view('details', compact('movie'));
+    }
+
+    /**
+     * Display the specified TV resource.
+     */
+    public function showTv(string $id): View|Factory
+    {
+        // ✅ TMDB configuration
+        $apiKey  = config('services.tmdb.api_key');
+        $baseUrl = config('services.tmdb.base_url');
+
+        // Initialize empty tvShow array in case of failure
+        $tvShow = [];
+
+        try {
+            // ✅ Fetch TV Show Details with credits and videos
+            $response = Http::timeout(5) // 5 seconds timeout
+            ->get("$baseUrl/tv/$id", [
+                'api_key' => $apiKey,
+                'append_to_response' => 'videos,credits', // Include trailers & cast
+                'language' => 'en-US',
+            ]);
+
+            if ($response->successful()) {
+                $tvShow = $response->json();
+            } else {
+                // Log non-success status
+                Log::warning('TMDB TV API returned non-success status', [
+                    'tv_id' => $id,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
+        } catch (Exception $e) {
+            // Log any unexpected error
+            Log::error('Unexpected error fetching TV show details', [
+                'tv_id' => $id,
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        // If TV show is empty, return 404 page or fallback
+        if (empty($tvShow)) {
+            abort(404, 'TV Show not found or failed to load.');
+        }
+
+        // ✅ Return the tvshow-details view
+        return view('detailstv', compact('tvShow'));
     }
 
     /**

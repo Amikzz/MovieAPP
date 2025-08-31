@@ -172,14 +172,14 @@
     </h1>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6">
         @foreach($popularTvShows as $show)
-            <a href=""
+            <a href="{{route('tv.show', ['id' => $show['id']])}}"
                class="group relative rounded-lg overflow-hidden shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
                 <img src="https://image.tmdb.org/t/p/w500{{ $show['poster_path'] }}"
                      alt="{{ $show['name'] }}"
                      class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
-                    <h2 class="text-lg font-semibold truncate">{{ $show['name'] }}</h2>
-                    <p class="text-sm text-gray-300">⭐ {{ $show['vote_average'] }}</p>
+                    <h2 class="text-lg font-semibold truncate text-white dark:text-white">{{ $show['name'] }}</h2>
+                    <p class="text-sm text-white dark:text-white">⭐ {{ $show['vote_average'] }}</p>
                 </div>
             </a>
         @endforeach

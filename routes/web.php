@@ -20,6 +20,9 @@ Route::middleware(['auth'])->group(function () {
 
     //Movie Details Route
     Route::get('movie/{id}', [DashboardController::class, 'showMovie'])->name('movies.show');
+
+    //TV Show Details Route
+    Route::get('tv/{id}', [DashboardController::class, 'showTv'])->name('tv.show');
 });
 
 require __DIR__.'/auth.php';
