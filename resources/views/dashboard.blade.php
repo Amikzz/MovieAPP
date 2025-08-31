@@ -139,51 +139,290 @@
 
 <main class="flex-1 w-full max-w-[1600px] mx-auto px-10 py-10">
 
-    <!-- Popular Movies -->
-    <h1 class="text-3xl font-bold mb-6 text-center">
-        Popular <span class="text-[#e50914]">Movies</span>
-    </h1>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6 mb-14">
-        @foreach($popularMovies as $movie)
-            <a href="{{route('movies.show', ['id' => $movie['id']])}}"
-               class="group relative rounded-lg overflow-hidden shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
-                <img src="https://image.tmdb.org/t/p/w500{{ $movie['poster_path'] }}"
-                     alt="{{ $movie['title'] }}"
-                     class="w-full h-full object-cover">
-                <div class="absolute inset-0
-                            bg-black/70 dark:bg-black/70
-                            group-hover:bg-black/50 dark:group-hover:bg-black/50
-                            opacity-0 group-hover:opacity-100
-                            transition flex flex-col justify-end p-4">
-                    <h2 class="text-lg font-semibold truncate text-white dark:text-white">
-                        {{ $movie['title'] }}
-                    </h2>
-                    <p class="text-sm text-white dark:text-white">
-                        ⭐ {{ $movie['vote_average'] }}
-                    </p>
-                </div>
-            </a>
-        @endforeach
-    </div>
+    <!-- Recommended Movies Section -->
+    @if(collect($recommendedMovies)->isNotEmpty())
+        <section class="mb-14 relative">
+            <h1 class="text-3xl font-bold mb-6 text-center">
+                Recommended <span class="text-[#e50914]">Movies</span>
+            </h1>
 
-    <!-- Popular TV Shows -->
-    <h1 class="text-3xl font-bold mb-6 text-center">
-        Popular <span class="text-[#e50914]">TV Shows</span>
-    </h1>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6">
-        @foreach($popularTvShows as $show)
-            <a href="{{route('tv.show', ['id' => $show['id']])}}"
-               class="group relative rounded-lg overflow-hidden shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
-                <img src="https://image.tmdb.org/t/p/w500{{ $show['poster_path'] }}"
-                     alt="{{ $show['name'] }}"
-                     class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
-                    <h2 class="text-lg font-semibold truncate text-white dark:text-white">{{ $show['name'] }}</h2>
-                    <p class="text-sm text-white dark:text-white">⭐ {{ $show['vote_average'] }}</p>
+            <div x-data="{ scrollX: 0 }" class="relative">
+                <!-- Left Arrow -->
+                <button
+                    @click="$refs.scrollContainer.scrollBy({ left: -300, behavior: 'smooth' })"
+                    class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full z-10 shadow-lg"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+
+                <!-- Scrollable Movies Row -->
+                <div
+                    x-ref="scrollContainer"
+                    class="flex gap-4 px-4 overflow-x-auto overflow-y-hidden no-scrollbar py-2"
+                    style="scroll-behavior: smooth;"
+                >
+                    @foreach($recommendedMovies as $movie)
+                        <div class="flex-shrink-0 w-48 md:w-56 relative group rounded-lg shadow-lg hover:scale-105 transform transition duration-300">
+                            <a href="{{ route('movies.show', ['id' => $movie['id']]) }}">
+                                <img src="https://image.tmdb.org/t/p/w500{{ $movie['poster_path'] }}"
+                                     alt="{{ $movie['title'] }}"
+                                     class="w-full h-72 md:h-80 object-cover rounded-lg">
+                            </a>
+
+                            <!-- Overlay with Title & Add to Favorites -->
+                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3 rounded-lg">
+                                <h2 class="text-md md:text-lg font-semibold truncate text-white">{{ $movie['title'] }}</h2>
+                                <p class="text-sm text-white mb-2">⭐ {{ $movie['vote_average'] }}</p>
+
+                                @auth
+                                    @php
+                                        $isFavorited = auth()->user()->favorites()->where('movie_id', $movie['id'])->exists();
+                                    @endphp
+                                    <button
+                                        x-data="{ favorited: @json($isFavorited) }"
+                                        x-on:click="
+                                        fetch('{{ route('favorites.toggle', $movie['id']) }}', {
+                                            method: 'POST',
+                                            headers: {
+                                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                'Accept': 'application/json',
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({})
+                                        })
+                                        .then(res => res.json())
+                                        .then(data => favorited = data.favorited)
+                                        .catch(err => {
+                                            console.error(err);
+                                            alert('Failed to add/remove favorite');
+                                        })
+                                    "
+                                        class="w-full flex items-center justify-center gap-2 px-3 py-2 mt-2 rounded-full bg-gradient-to-r from-[#e50914] to-[#ff3d5f] text-white font-semibold shadow hover:scale-105 transition cursor-pointer"
+                                    >
+                                        <svg x-show="!favorited" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 8c0-3.2 4-6 8-6s8 2.8 8 6c0 5-8 11-8 11S4 13 4 8z" />
+                                        </svg>
+                                        <svg x-show="favorited" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span x-text="favorited ? 'Added' : 'Add'"></span>
+                                    </button>
+                                @endauth
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-            </a>
-        @endforeach
-    </div>
+
+                <!-- Right Arrow -->
+                <button
+                    @click="$refs.scrollContainer.scrollBy({ left: 300, behavior: 'smooth' })"
+                    class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full z-10 shadow-lg"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </section>
+
+        <style>
+            /* Hide scrollbar for all browsers */
+            .no-scrollbar::-webkit-scrollbar { display: none; }
+            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        </style>
+    @endif
+
+    <!-- Popular Movies Section -->
+    @if(collect($popularMovies)->isNotEmpty())
+        <section class="mb-14 relative">
+            <h1 class="text-3xl font-bold mb-6 text-center">
+                Popular <span class="text-[#e50914]">Movies</span>
+            </h1>
+
+            <div x-data class="relative">
+                <!-- Left Arrow -->
+                <button
+                    @click="$refs.scrollContainer.scrollBy({ left: -300, behavior: 'smooth' })"
+                    class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full z-10 shadow-lg"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+
+                <!-- Scrollable Movies Row -->
+                <div
+                    x-ref="scrollContainer"
+                    class="flex gap-4 px-4 overflow-x-auto overflow-y-hidden no-scrollbar py-2"
+                    style="scroll-behavior: smooth;"
+                >
+                    @foreach($popularMovies as $movie)
+                        <div class="flex-shrink-0 w-48 md:w-56 relative group rounded-lg shadow-lg hover:scale-105 transform transition duration-300">
+                            <a href="{{ route('movies.show', ['id' => $movie['id']]) }}">
+                                <img src="https://image.tmdb.org/t/p/w500{{ $movie['poster_path'] }}"
+                                     alt="{{ $movie['title'] }}"
+                                     class="w-full h-72 md:h-80 object-cover rounded-lg">
+                            </a>
+
+                            <!-- Overlay with Title & Add to Favorites -->
+                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3 rounded-lg">
+                                <h2 class="text-md md:text-lg font-semibold truncate text-white">{{ $movie['title'] }}</h2>
+                                <p class="text-sm text-white mb-2">⭐ {{ $movie['vote_average'] }}</p>
+
+                                @auth
+                                    @php
+                                        $isFavorited = auth()->user()->favorites()->where('movie_id', $movie['id'])->exists();
+                                    @endphp
+                                    <button
+                                        x-data="{ favorited: @json($isFavorited) }"
+                                        x-on:click="
+                                        fetch('{{ route('favorites.toggle', $movie['id']) }}', {
+                                            method: 'POST',
+                                            headers: {
+                                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                'Accept': 'application/json',
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({})
+                                        })
+                                        .then(res => res.json())
+                                        .then(data => favorited = data.favorited)
+                                        .catch(err => {
+                                            console.error(err);
+                                            alert('Failed to add/remove favorite');
+                                        })
+                                    "
+                                        class="w-full flex items-center justify-center gap-2 px-3 py-2 mt-2 rounded-full bg-gradient-to-r from-[#e50914] to-[#ff3d5f] text-white font-semibold shadow hover:scale-105 transition cursor-pointer"
+                                    >
+                                        <svg x-show="!favorited" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 8c0-3.2 4-6 8-6s8 2.8 8 6c0 5-8 11-8 11S4 13 4 8z" />
+                                        </svg>
+                                        <svg x-show="favorited" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span x-text="favorited ? 'Added' : 'Add'"></span>
+                                    </button>
+                                @endauth
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Right Arrow -->
+                <button
+                    @click="$refs.scrollContainer.scrollBy({ left: 300, behavior: 'smooth' })"
+                    class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full z-10 shadow-lg"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </section>
+
+        <style>
+            /* Hide scrollbar for all browsers */
+            .no-scrollbar::-webkit-scrollbar { display: none; }
+            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        </style>
+    @endif
+
+    <!-- Popular TV Shows Section -->
+    @if(collect($popularTvShows)->isNotEmpty())
+        <section class="mb-14 relative">
+            <h1 class="text-3xl font-bold mb-6 text-center">
+                Popular <span class="text-[#e50914]">TV Shows</span>
+            </h1>
+
+            <div x-data class="relative">
+                <!-- Left Arrow -->
+                <button
+                    @click="$refs.scrollContainer.scrollBy({ left: -300, behavior: 'smooth' })"
+                    class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full z-10 shadow-lg"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+
+                <!-- Scrollable TV Shows Row -->
+                <div
+                    x-ref="scrollContainer"
+                    class="flex gap-4 px-4 overflow-x-auto overflow-y-hidden no-scrollbar py-2"
+                    style="scroll-behavior: smooth;"
+                >
+                    @foreach($popularTvShows as $show)
+                        <div class="flex-shrink-0 w-48 md:w-56 relative group rounded-lg shadow-lg hover:scale-105 transform transition duration-300">
+                            <a href="{{ route('tv.show', ['id' => $show['id']]) }}">
+                                <img src="https://image.tmdb.org/t/p/w500{{ $show['poster_path'] }}"
+                                     alt="{{ $show['name'] }}"
+                                     class="w-full h-72 md:h-80 object-cover rounded-lg">
+                            </a>
+
+                            <!-- Overlay with Title & Add to Favorites -->
+                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3 rounded-lg">
+                                <h2 class="text-md md:text-lg font-semibold truncate text-white">{{ $show['name'] }}</h2>
+                                <p class="text-sm text-white mb-2">⭐ {{ $show['vote_average'] }}</p>
+
+                                @auth
+                                    @php
+                                        $isFavorited = auth()->user()->favorites()->where('tv_id', $show['id'])->exists();
+                                    @endphp
+                                    <button
+                                        x-data="{ favorited: @json($isFavorited) }"
+                                        x-on:click="
+                                        fetch('{{ route('favorites.toggle', $show['id']) }}', {
+                                            method: 'POST',
+                                            headers: {
+                                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                'Accept': 'application/json',
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({})
+                                        })
+                                        .then(res => res.json())
+                                        .then(data => favorited = data.favorited)
+                                        .catch(err => {
+                                            console.error(err);
+                                            alert('Failed to add/remove favorite');
+                                        })
+                                    "
+                                        class="w-full flex items-center justify-center gap-2 px-3 py-2 mt-2 rounded-full bg-gradient-to-r from-[#e50914] to-[#ff3d5f] text-white font-semibold shadow hover:scale-105 transition cursor-pointer"
+                                    >
+                                        <svg x-show="!favorited" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 8c0-3.2 4-6 8-6s8 2.8 8 6c0 5-8 11-8 11S4 13 4 8z" />
+                                        </svg>
+                                        <svg x-show="favorited" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span x-text="favorited ? 'Added' : 'Add'"></span>
+                                    </button>
+                                @endauth
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Right Arrow -->
+                <button
+                    @click="$refs.scrollContainer.scrollBy({ left: 300, behavior: 'smooth' })"
+                    class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full z-10 shadow-lg"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </section>
+
+        <style>
+            /* Hide scrollbar for all browsers */
+            .no-scrollbar::-webkit-scrollbar { display: none; }
+            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        </style>
+    @endif
 
 </main>
 

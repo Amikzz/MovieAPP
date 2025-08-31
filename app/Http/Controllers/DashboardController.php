@@ -16,42 +16,37 @@ class DashboardController extends Controller
      */
     public function index(): View|Factory
     {
-        // ✅ TMDB configuration
         $apiKey   = config('services.tmdb.api_key');
         $baseUrl  = config('services.tmdb.base_url');
         $imageUrl = config('services.tmdb.image_url');
 
-        // Initialize empty arrays in case of failure
         $popularMovies = [];
         $popularTvShows = [];
+        $recommendedMovies = [];
 
         try {
-            // ✅ Fetch Popular Movies with timeout and error handling
-            $moviesResponse = Http::timeout(5) // 5 seconds timeout
-            ->get("$baseUrl/movie/popular", [
-                'api_key'  => $apiKey,
-                'language' => 'en-US',
-                'page'     => 1,
-            ]);
+            // Fetch popular movies
+            $moviesResponse = Http::timeout(5)
+                ->get("$baseUrl/movie/popular", [
+                    'api_key'  => $apiKey,
+                    'language' => 'en-US',
+                    'page'     => 1,
+                ]);
 
-            // Check if request is successful
             if ($moviesResponse->successful()) {
                 $popularMovies = $moviesResponse->json()['results'] ?? [];
             } else {
-                // Log API error
                 Log::warning('TMDB Movies API returned non-success status', [
                     'status' => $moviesResponse->status(),
                     'body'   => $moviesResponse->body(),
                 ]);
             }
         } catch (Exception $e) {
-            Log::error('Unexpected error fetching movies', [
-                'message' => $e->getMessage(),
-            ]);
+            Log::error('Unexpected error fetching movies', ['message' => $e->getMessage()]);
         }
 
         try {
-            // ✅ Fetch Popular TV Shows with timeout and error handling
+            // Fetch popular TV shows
             $tvResponse = Http::timeout(5)
                 ->get("$baseUrl/tv/popular", [
                     'api_key'  => $apiKey,
@@ -68,15 +63,48 @@ class DashboardController extends Controller
                 ]);
             }
         } catch (Exception $e) {
-            Log::error('Unexpected error fetching TV shows', [
-                'message' => $e->getMessage(),
-            ]);
+            Log::error('Unexpected error fetching TV shows', ['message' => $e->getMessage()]);
         }
 
-        // ✅ Return Blade view with fallback empty arrays if any request failed
+        // ✅ Fetch recommended movies based on user's favorites
+        if (auth()->check()) {
+            $favoriteMovieIds = auth()->user()->favorites()->pluck('movie_id');
+
+            foreach ($favoriteMovieIds as $movieId) {
+                try {
+                    $recResponse = Http::timeout(5)
+                        ->get("$baseUrl/movie/$movieId/recommendations", [
+                            'api_key'  => $apiKey,
+                            'language' => 'en-US',
+                            'page'     => 1,
+                        ]);
+
+                    if ($recResponse->successful()) {
+                        $recs = $recResponse->json()['results'] ?? [];
+                        // Merge without duplicates
+                        foreach ($recs as $rec) {
+                            if (!collect($recommendedMovies)->pluck('id')->contains($rec['id'])) {
+                                $recommendedMovies[] = $rec;
+                            }
+                        }
+                    } else {
+                        Log::warning("TMDB Recommendations API returned non-success for movie $movieId", [
+                            'status' => $recResponse->status(),
+                            'body' => $recResponse->body(),
+                        ]);
+                    }
+                } catch (Exception $e) {
+                    Log::error("Unexpected error fetching recommendations for movie $movieId", [
+                        'message' => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
+
         return view('dashboard', [
             'popularMovies' => $popularMovies,
             'popularTvShows' => $popularTvShows,
+            'recommendedMovies' => $recommendedMovies,
             'imageUrl' => $imageUrl,
         ]);
     }

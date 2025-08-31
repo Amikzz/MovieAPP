@@ -82,6 +82,53 @@
         </div>
     </div>
 
+    <!-- Add to Favorites Button -->
+    @auth
+        @php
+            $isFavorited = auth()->user()->favorites()
+                                ->where('movie_id', $movie['id'])
+                                ->exists();
+        @endphp
+
+        <div class="max-w-7xl mx-auto px-8 mt-6 animate-fadeUp delay-400">
+            <button
+                x-data="{ favorited: @json($isFavorited) }"
+                x-on:click="
+                    fetch('{{ route('favorites.toggle', $movie['id']) }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({})
+                    })
+                    .then(res => res.json())
+                    .then(data => favorited = data.favorited)
+                    .catch(err => {
+                        console.error(err);
+                        alert('Failed to add/remove favorite');
+                    })
+                "
+                class="flex items-center gap-3 px-6 py-3 rounded-full shadow-lg font-semibold
+               text-white transition transform hover:scale-105
+               bg-gradient-to-r from-[#e50914] to-[#ff3d5f]
+               dark:from-[#b20710] dark:to-[#ff1f4f] cursor-pointer"
+            >
+                <!-- Heart icon -->
+                <svg x-show="!favorited" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 8c0-3.2 4-6 8-6s8 2.8 8 6c0 5-8 11-8 11S4 13 4 8z" />
+                </svg>
+                <svg x-show="favorited" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+
+                <!-- Button text -->
+                <span x-text="favorited ? 'Added to Favorites' : 'Add to Favorites'"></span>
+            </button>
+        </div>
+    @endauth
+
     <!-- Movie Stats -->
     <div class="max-w-7xl mx-auto px-8 py-8 mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 animate-fadeUp delay-200">
         @php
@@ -176,6 +223,9 @@
         }, 500);
     });
 </script>
+
+<!-- Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
 </body>
 </html>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FavouritesController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -23,6 +24,10 @@ Route::middleware(['auth'])->group(function () {
 
     //TV Show Details Route
     Route::get('tv/{id}', [DashboardController::class, 'showTv'])->name('tv.show');
+});
+
+Route::middleware(['auth', 'web'])->group(function() {
+    Route::post('favourite/toggle/{movieId}', [FavouritesController::class, 'toggle'])->name('favorites.toggle');
 });
 
 require __DIR__.'/auth.php';

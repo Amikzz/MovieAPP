@@ -72,6 +72,45 @@
         </div>
     </div>
 
+    <!-- Add to Favorites Button -->
+    @auth
+        @php
+            // Check if movie is already favorited by the authenticated user
+            $isFavorited = auth()->user()->favorites()
+                                ->where('movie_id', $movie['id'])
+                                ->exists();
+        @endphp
+
+        <div class="max-w-7xl mx-auto px-8 mt-6 animate-fadeUp delay-400">
+            <button
+                x-data="{ favorited: @json($isFavorited), loading: false }"
+                x-on:click="loading = true; fetch('{{ route('favorites.toggle', $movie['id']) }}', {
+                        method: 'POST',
+                        headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json'}
+                    }).then(res => res.json()).then(data => favorited = data.favorited).finally(() => loading = false)"
+                class="flex items-center gap-2 px-5 py-3 rounded-xl shadow-lg font-semibold
+                   text-white transition transform hover:scale-105
+                   bg-gradient-to-r from-red-600 to-pink-500
+                   dark:from-red-700 dark:to-pink-600"
+            >
+                <template x-if="!favorited">
+                    <i data-feather="heart"></i>
+                </template>
+                <template x-if="favorited">
+                    <i data-feather="check"></i>
+                </template>
+
+                <span x-text="favorited ? 'Added to Favorites' : 'Add to Favorites'"></span>
+
+                <svg x-show="loading" class="animate-spin h-5 w-5 ml-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4l-3 3 3 3h-4z"></path>
+                </svg>
+            </button>
+        </div>
+    @endauth
+
+
     <!-- TV Show Stats -->
     <div class="max-w-7xl mx-auto px-8 py-8 mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 animate-fadeUp delay-200">
         @php
