@@ -8,8 +8,10 @@
     <div class="flex w-full max-w-sm flex-col gap-6 items-center">
         <!-- Centered Logo -->
         <a href="{{ url('/') }}"
-           class="text-3xl font-extrabold tracking-tight text-white hover:text-[#e50914] transition text-center">
-            Movie<span class="text-[#e50914]">App</span>
+           class="text-3xl font-extrabold tracking-tight transition text-center
+              text-black dark:text-white hover:text-[#e50914] dark:hover:text-[#e50914]">
+            <span class="text-black dark:text-white hover:text-[#e50914] transition">Movie</span>
+            <span class="text-[#e50914]">App</span>
         </a>
 
         <!-- Slot for forms -->
@@ -17,6 +19,7 @@
             {{ $slot }}
         </div>
     </div>
+
 </div>
 @fluxScripts
 </body>

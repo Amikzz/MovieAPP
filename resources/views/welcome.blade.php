@@ -37,14 +37,19 @@
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-[#0f0f0f] via-[#1a1a1a] to-[#0a0a0a] text-white min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col
+             bg-gradient-to-br from-white via-gray-100 to-gray-200
+             dark:bg-gradient-to-br dark:from-[#0f0f0f] dark:via-[#1a1a1a] dark:to-[#0a0a0a]
+             text-black dark:text-white">
 
-<!-- ✅ Full-Width Navbar -->
-<header class="w-full sticky top-0 z-50 bg-black/80 backdrop-blur-md shadow">
+<!-- Navbar -->
+<header class="w-full sticky top-0 z-50
+               bg-white/90 dark:bg-black/80 backdrop-blur-md shadow">
     <div class="flex items-center justify-between px-6 py-4">
         <!-- Logo -->
         <a href="{{ url('/') }}"
-           class="text-2xl font-extrabold tracking-tight text-white hover:text-[#e50914] transition">
+           class="text-2xl font-extrabold tracking-tight transition text-center
+                  text-black dark:text-white hover:text-[#e50914]">
             Movie<span class="text-[#e50914]">App</span>
         </a>
 
@@ -58,7 +63,9 @@
                     </a>
                 @else
                     <a href="{{ route('login') }}"
-                       class="px-5 py-2 text-sm font-semibold text-gray-200 border border-gray-600 rounded-lg hover:text-[#e50914] hover:border-[#e50914] transition">
+                       class="px-5 py-2 text-sm font-semibold text-gray-800 dark:text-gray-200
+                              border border-gray-300 dark:border-gray-600 rounded-lg
+                              hover:text-[#e50914] transition">
                         Log in
                     </a>
 
@@ -74,7 +81,7 @@
     </div>
 </header>
 
-<!-- ✅ Hero Auto Scroller (Swiper) -->
+<!-- Hero Section -->
 <section class="w-full h-screen relative">
     <div class="swiper mySwiper h-full w-full">
         <div class="swiper-wrapper h-full">
@@ -85,13 +92,18 @@
                          alt="{{ $item['title'] ?? $item['name'] }}"
                          class="absolute inset-0 w-full h-full object-cover">
 
-                    <!-- Dark Overlay + Content -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex items-end">
+                    <!-- Overlay + Content -->
+                    <div class="absolute inset-0
+                                bg-gradient-to-t
+                                from-white/50 via-white/20 to-transparent
+                                dark:from-black dark:via-black/40 dark:to-transparent
+                                flex items-end">
                         <div class="p-8 md:p-16 max-w-3xl -translate-y-20">
-                            <h2 class="text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
+                            <h2 class="text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-lg
+                                       text-black dark:text-white">
                                 {{ $item['title'] ?? $item['name'] }}
                             </h2>
-                            <p class="text-xl text-gray-300 mb-4 drop-shadow">
+                            <p class="text-xl text-gray-800 dark:text-gray-300 mb-4 drop-shadow">
                                 ⭐ {{ $item['vote_average'] }}
                             </p>
                             <a href="{{ isset($item['title']) ? 'https://www.themoviedb.org/movie/' . $item['id'] : 'https://www.themoviedb.org/tv/' . $item['id'] }}"
@@ -104,13 +116,9 @@
                 </div>
             @endforeach
         </div>
-
-        <!-- Pagination + Navigation -->
-        <div class="swiper-pagination"></div>
-        <div class="swiper-button-next text-[#e50914] hover:text-[#b20710]"></div>
-        <div class="swiper-button-prev text-[#e50914] hover:text-[#b20710]"></div>
     </div>
 </section>
+
 
 <main class="flex-1 w-full max-w-[1600px] mx-auto px-10 py-10">
 
@@ -128,10 +136,21 @@
                     <img src="https://image.tmdb.org/t/p/w500{{ $movie['poster_path'] }}"
                          alt="{{ $movie['title'] }}"
                          class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
-                        <h2 class="text-lg font-semibold truncate">{{ $movie['title'] }}</h2>
-                        <p class="text-sm text-gray-300">⭐ {{ $movie['vote_average'] }}</p>
+                    <div class="absolute inset-0
+                                bg-black/70 dark:bg-black/70
+                                group-hover:bg-black/50 dark:group-hover:bg-black/50
+                                opacity-0 group-hover:opacity-100
+                                transition flex flex-col justify-end p-4">
+
+                        <h2 class="text-lg font-semibold truncate
+                                    text-white dark:text-white">
+                            {{ $movie['title'] }}
+                        </h2>
+                        <p class="text-sm text-white dark:text-white">
+                            ⭐ {{ $movie['vote_average'] }}
+                        </p>
                     </div>
+
                 </div>
             @endforeach
         </div>
