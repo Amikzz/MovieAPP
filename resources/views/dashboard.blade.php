@@ -347,7 +347,7 @@
 
                                 <div class="flex gap-2">
                                     <!-- View Button -->
-                                    <a href="{{ route('movies.show', ['id' => $itemId]) }}"
+                                    <a href="{{ route('tv.show', ['id' => $itemId]) }}"
                                        class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow hover:scale-105 transition">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                              stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -585,13 +585,15 @@
                                 : false;
                         @endphp
 
-                        <div class="flex-shrink-0 w-48 md:w-56 relative group rounded-lg shadow-lg hover:scale-105 transform transition duration-300">
+                        <div
+                            class="flex-shrink-0 w-48 md:w-56 relative group rounded-lg shadow-lg hover:scale-105 transform transition duration-300">
                             <img src="https://image.tmdb.org/t/p/w500{{ $show['poster_path'] }}"
                                  alt="{{ $show['name'] }}"
                                  class="w-full h-72 md:h-80 object-cover rounded-lg">
 
                             <!-- Overlay with Title & Buttons -->
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3 rounded-lg">
+                            <div
+                                class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3 rounded-lg">
                                 <h2 class="text-md md:text-lg font-semibold truncate text-white">{{ $show['name'] }}</h2>
                                 <p class="text-sm text-white mb-2">⭐ {{ $show['vote_average'] }}</p>
 
@@ -599,8 +601,10 @@
                                     <!-- View Button -->
                                     <a href="{{ route('tv.show', ['id' => $itemId]) }}"
                                        class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow hover:scale-105 transition">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m6 0l-3-3m3 3l-3 3" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                             stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M15 12H9m6 0l-3-3m3 3l-3 3"/>
                                         </svg>
                                         <span>View</span>
                                     </a>
@@ -625,11 +629,16 @@
                             "
                                             class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r from-[#e50914] to-[#ff3d5f] text-white font-semibold shadow hover:scale-105 transition"
                                         >
-                                            <svg x-show="!favorited" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 8c0-3.2 4-6 8-6s8 2.8 8 6c0 5-8 11-8 11S4 13 4 8z" />
+                                            <svg x-show="!favorited" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                 fill="none" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M4 8c0-3.2 4-6 8-6s8 2.8 8 6c0 5-8 11-8 11S4 13 4 8z"/>
                                             </svg>
-                                            <svg x-show="favorited" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                            <svg x-show="favorited" xmlns="http://www.w3.org/2000/svg"
+                                                 class="h-5 w-5 text-white" fill="none" stroke="currentColor"
+                                                 stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M5 13l4 4L19 7"/>
                                             </svg>
                                             <span x-text="favorited ? 'Added' : 'Add'"></span>
                                         </button>

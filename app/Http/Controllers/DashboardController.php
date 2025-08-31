@@ -16,14 +16,14 @@ class DashboardController extends Controller
      */
     public function index(): View|Factory
     {
-        $apiKey   = config('services.tmdb.api_key');
-        $baseUrl  = config('services.tmdb.base_url');
+        $apiKey = config('services.tmdb.api_key');
+        $baseUrl = config('services.tmdb.base_url');
         $imageUrl = config('services.tmdb.image_url');
 
         $popularMovies = [];
         $popularTvShows = [];
         $recommendedMovies = [];
-        $recommendedTv     = [];
+        $recommendedTv = [];
         $popularGenres = [];
         $popularActors = [];
 
@@ -31,9 +31,9 @@ class DashboardController extends Controller
             // Fetch popular movies
             $moviesResponse = Http::timeout(5)
                 ->get("$baseUrl/movie/popular", [
-                    'api_key'  => $apiKey,
+                    'api_key' => $apiKey,
                     'language' => 'en-US',
-                    'page'     => 1,
+                    'page' => 1,
                 ]);
 
             if ($moviesResponse->successful()) {
@@ -41,7 +41,7 @@ class DashboardController extends Controller
             } else {
                 Log::warning('TMDB Movies API returned non-success status', [
                     'status' => $moviesResponse->status(),
-                    'body'   => $moviesResponse->body(),
+                    'body' => $moviesResponse->body(),
                 ]);
             }
         } catch (Exception $e) {
@@ -52,9 +52,9 @@ class DashboardController extends Controller
             // Fetch popular TV shows
             $tvResponse = Http::timeout(5)
                 ->get("$baseUrl/tv/popular", [
-                    'api_key'  => $apiKey,
+                    'api_key' => $apiKey,
                     'language' => 'en-US',
-                    'page'     => 1,
+                    'page' => 1,
                 ]);
 
             if ($tvResponse->successful()) {
@@ -62,7 +62,7 @@ class DashboardController extends Controller
             } else {
                 Log::warning('TMDB TV API returned non-success status', [
                     'status' => $tvResponse->status(),
-                    'body'   => $tvResponse->body(),
+                    'body' => $tvResponse->body(),
                 ]);
             }
         } catch (Exception $e) {
@@ -73,15 +73,15 @@ class DashboardController extends Controller
             $favorites = auth()->user()->favorites()->select('type', 'item_id')->get();
 
             foreach ($favorites as $favorite) {
-                $type   = $favorite->type; // "movie" or "tv"
+                $type = $favorite->type; // "movie" or "tv"
                 $itemId = $favorite->item_id;
 
                 try {
                     $recResponse = Http::timeout(5)
                         ->get("$baseUrl/$type/$itemId/recommendations", [
-                            'api_key'  => $apiKey,
+                            'api_key' => $apiKey,
                             'language' => 'en-US',
-                            'page'     => 1,
+                            'page' => 1,
                         ]);
 
                     if ($recResponse->successful()) {
@@ -95,14 +95,14 @@ class DashboardController extends Controller
                                 // Avoid duplicates in movies
                                 $exists = collect($recommendedMovies)
                                     ->contains(fn($r) => $r['id'] === $rec['id']);
-                                if (! $exists) {
+                                if (!$exists) {
                                     $recommendedMovies[] = $rec;
                                 }
                             } elseif ($type === 'tv') {
                                 // Avoid duplicates in tv
                                 $exists = collect($recommendedTv)
                                     ->contains(fn($r) => $r['id'] === $rec['id']);
-                                if (! $exists) {
+                                if (!$exists) {
                                     $recommendedTv[] = $rec;
                                 }
                             }
@@ -110,7 +110,7 @@ class DashboardController extends Controller
                     } else {
                         Log::warning("TMDB API non-success for $type $itemId", [
                             'status' => $recResponse->status(),
-                            'body'   => $recResponse->body(),
+                            'body' => $recResponse->body(),
                         ]);
                     }
                 } catch (Exception $e) {
@@ -122,7 +122,7 @@ class DashboardController extends Controller
 
             // Shuffle and trim to 50 each
             $recommendedMovies = collect($recommendedMovies)->shuffle()->take(50)->values()->toArray();
-            $recommendedTv     = collect($recommendedTv)->shuffle()->take(50)->values()->toArray();
+            $recommendedTv = collect($recommendedTv)->shuffle()->take(50)->values()->toArray();
         }
         try {
             // Fetch popular genres
@@ -198,7 +198,7 @@ class DashboardController extends Controller
     public function showMovie(string $id): View|Factory
     {
         // ✅ TMDB configuration
-        $apiKey  = config('services.tmdb.api_key');
+        $apiKey = config('services.tmdb.api_key');
         $baseUrl = config('services.tmdb.base_url');
 
         // Initialize empty movie array in case of failure
@@ -219,15 +219,15 @@ class DashboardController extends Controller
                 // Log non-success status
                 Log::warning('TMDB Movie API returned non-success status', [
                     'movie_id' => $id,
-                    'status'   => $response->status(),
-                    'body'     => $response->body(),
+                    'status' => $response->status(),
+                    'body' => $response->body(),
                 ]);
             }
         } catch (Exception $e) {
             // Log any unexpected error
             Log::error('Unexpected error fetching movie details', [
                 'movie_id' => $id,
-                'message'  => $e->getMessage(),
+                'message' => $e->getMessage(),
             ]);
         }
 
@@ -246,7 +246,7 @@ class DashboardController extends Controller
     public function showTv(string $id): View|Factory
     {
         // ✅ TMDB configuration
-        $apiKey  = config('services.tmdb.api_key');
+        $apiKey = config('services.tmdb.api_key');
         $baseUrl = config('services.tmdb.base_url');
 
         // Initialize empty tvShow array in case of failure

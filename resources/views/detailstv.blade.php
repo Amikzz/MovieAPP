@@ -8,7 +8,7 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config = { darkMode: 'media' };</script>
+    <script>tailwind.config = {darkMode: 'media'};</script>
 
     <!-- Heroicons -->
     <script src="https://unpkg.com/feather-icons"></script>
@@ -18,9 +18,19 @@
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet"/>
 
     <style>
-        body { font-family: 'instrument-sans', sans-serif; }
-        .cast-scroll::-webkit-scrollbar { height: 6px; }
-        .cast-scroll::-webkit-scrollbar-thumb { background-color: #e50914; border-radius: 10px; }
+        body {
+            font-family: 'instrument-sans', sans-serif;
+        }
+
+        .cast-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .cast-scroll::-webkit-scrollbar-thumb {
+            background-color: #e50914;
+            border-radius: 10px;
+        }
+
         .loader {
             border: 4px solid #ddd;
             border-top: 4px solid #e50914;
@@ -29,13 +39,23 @@
             height: 40px;
             animation: spin 1s linear infinite;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-white via-gray-100 to-gray-200 text-black dark:bg-gradient-to-br dark:from-[#0f0f0f] dark:via-[#1a1a1a] dark:to-[#0a0a0a] dark:text-white">
+<body
+    class="min-h-screen bg-gradient-to-br from-white via-gray-100 to-gray-200 text-black dark:bg-gradient-to-br dark:from-[#0f0f0f] dark:via-[#1a1a1a] dark:to-[#0a0a0a] dark:text-white">
 
 <!-- Loader -->
-<div id="loader" class="fixed inset-0 flex items-center justify-center bg-white dark:bg-black z-[100] transition-opacity duration-500">
+<div id="loader"
+     class="fixed inset-0 flex items-center justify-center bg-white dark:bg-black z-[100] transition-opacity duration-500">
     <div class="loader"></div>
 </div>
 
@@ -71,41 +91,62 @@
     <!-- Add to Favorites Button -->
     @auth
         @php
-            $isFavorited = auth()->user()->favorites()->where('tv_id', $tvShow['id'])->exists();
+            $type = 'tv';
+            $itemId = $tvShow['id'];
+
+            $isFavorited = auth()->user()->favorites()
+                ->where('type', $type)
+                ->where('item_id', $itemId)
+                ->exists();
         @endphp
 
         <div class="max-w-7xl mx-auto px-8 mt-6 animate-fadeUp delay-400">
             <button
-                x-data="{ favorited: @json($isFavorited), loading: false }"
-                x-on:click="loading = true;
-        fetch('{{ route('favorites.toggle', ['type' => 'tv', 'itemId' => $tvShow['id']]) }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            },
-        })
-        .then(res => res.json())
-        .then(data => favorited = data.favorited)
-        .finally(() => loading = false)"
+                x-data="{ favorited: @json($isFavorited) }"
+                x-on:click="
+                fetch(`/favorites/toggle/{{ $type }}/{{ $itemId }}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(res => res.json())
+                .then(data => favorited = data.favorited)
+                .catch(err => {
+                    console.error(err);
+                    alert('Failed to add/remove favorite');
+                })
+            "
                 class="flex items-center gap-3 px-6 py-3 rounded-full shadow-lg font-semibold
-                       text-white transition transform hover:scale-105
-                       bg-gradient-to-r from-[#e50914] to-[#ff3d5f]
-                       dark:from-[#b20710] dark:to-[#ff1f4f] cursor-pointer"
+                   text-white transition transform hover:scale-105
+                   bg-gradient-to-r from-[#e50914] to-[#ff3d5f]
+                   dark:from-[#b20710] dark:to-[#ff1f4f] cursor-pointer"
             >
-                <svg x-show="!favorited" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 8c0-3.2 4-6 8-6s8 2.8 8 6c0 5-8 11-8 11S4 13 4 8z" />
+                <!-- Heart icon (not favorited) -->
+                <svg x-show="!favorited" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6"
+                     fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M4 8c0-3.2 4-6 8-6s8 2.8 8 6c0 5-8 11-8 11S4 13 4 8z"/>
                 </svg>
-                <svg x-show="favorited" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+
+                <!-- Checkmark icon (favorited) -->
+                <svg x-show="favorited" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white"
+                     fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                 </svg>
+
+                <!-- Button text -->
                 <span x-text="favorited ? 'Added to Favorites' : 'Add to Favorites'"></span>
             </button>
         </div>
     @endauth
 
     <!-- TV Show Stats -->
-    <div class="max-w-7xl mx-auto px-8 py-8 mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 animate-fadeUp delay-200">
+    <div
+        class="max-w-7xl mx-auto px-8 py-8 mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 animate-fadeUp delay-200">
         @php
             $stats = [
                 ['icon' => 'calendar', 'label' => 'First Air Date', 'value' => $tvShow['first_air_date'] ?? 'N/A'],
@@ -117,7 +158,8 @@
             ];
         @endphp
         @foreach($stats as $stat)
-            <div class="flex items-center gap-3 bg-white dark:bg-black/90 rounded-xl p-5 shadow hover:scale-105 transition border border-gray-200 dark:border-gray-800">
+            <div
+                class="flex items-center gap-3 bg-white dark:bg-black/90 rounded-xl p-5 shadow hover:scale-105 transition border border-gray-200 dark:border-gray-800">
                 <i data-feather="{{ $stat['icon'] }}" class="text-[#e50914]"></i>
                 <div>
                     <h3 class="font-semibold text-gray-600 dark:text-gray-300">{{ $stat['label'] }}</h3>
@@ -151,13 +193,15 @@
             <h2 class="text-2xl font-semibold mb-4">Seasons</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 @foreach($tvShow['seasons'] as $season)
-                    <div class="bg-white dark:bg-black/90 rounded-xl p-4 shadow border border-gray-200 dark:border-gray-800 hover:scale-105 transition">
+                    <div
+                        class="bg-white dark:bg-black/90 rounded-xl p-4 shadow border border-gray-200 dark:border-gray-800 hover:scale-105 transition">
                         <img src="https://image.tmdb.org/t/p/w300{{ $season['poster_path'] ?? '' }}"
                              alt="{{ $season['name'] }}"
                              class="rounded-lg mb-2 w-full h-48 object-cover">
                         <h3 class="font-semibold text-gray-800 dark:text-gray-200">{{ $season['name'] }}</h3>
                         <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $season['air_date'] ?? 'N/A' }}</p>
-                        <p class="text-gray-900 dark:text-gray-200 text-sm mt-1">{{ $season['episode_count'] ?? 0 }} Episodes</p>
+                        <p class="text-gray-900 dark:text-gray-200 text-sm mt-1">{{ $season['episode_count'] ?? 0 }}
+                            Episodes</p>
                     </div>
                 @endforeach
             </div>
@@ -186,7 +230,8 @@
                 <h2 class="text-2xl font-semibold mb-4">Trailer</h2>
                 <div class="relative aspect-video rounded-xl overflow-hidden shadow-lg">
                     <iframe class="w-full h-full" src="{{ $embedUrl }}" title="TV Show Trailer"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen></iframe>
                 </div>
             </div>
         @endif

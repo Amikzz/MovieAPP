@@ -26,7 +26,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('tv/{id}', [DashboardController::class, 'showTv'])->name('tv.show');
 });
 
-Route::middleware(['auth', 'web'])->group(function() {
+Route::middleware(['auth', 'web'])->group(function () {
     Route::post('favorites/toggle/{type}/{itemId}', [FavouritesController::class, 'toggle'])
         ->name('favorites.toggle');
 });
