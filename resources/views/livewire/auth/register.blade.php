@@ -25,13 +25,20 @@ new #[Layout('components.layouts.auth')] class extends Component {
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Hash the password
         $validated['password'] = Hash::make($validated['password']);
 
-        event(new Registered(($user = User::create($validated))));
+        // Create the user
+        $user = User::create($validated);
 
+        // Fire registered event
+        event(new Registered($user));
+
+        // Log in the user
         Auth::login($user);
 
-        $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
+        // ✅ Redirect after registration using Livewire
+        $this->redirect(session()->pull('url.intended', route('dashboard')));
     }
 }; ?>
 
