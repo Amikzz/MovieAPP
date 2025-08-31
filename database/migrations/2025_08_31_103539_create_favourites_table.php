@@ -15,10 +15,10 @@ return new class extends Migration
         Schema::create('favorites', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('movie_id'); // TMDB ID as string
+            $table->string('item_id'); // TMDB ID (movie or TV)
+            $table->enum('type', ['movie', 'tv']); // type of favorite
             $table->timestamps();
         });
-
     }
 
     /**
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('favourites');
+        Schema::dropIfExists('favorites');
     }
 };

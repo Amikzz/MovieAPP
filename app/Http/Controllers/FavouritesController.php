@@ -10,24 +10,23 @@ use App\Models\Favourites;
 class FavouritesController extends Controller
 {
     // Toggle favorite status for a movie
-    public function toggle(string $movieId, Request $request): JsonResponse
+    public function toggle(Request $request, string $type, string $itemId): JsonResponse
     {
         $user = Auth::user();
 
-        // Check if already favorited
         $favorite = Favourites::where('user_id', $user->id)
-            ->where('movie_id', $movieId)
+            ->where('item_id', $itemId)
+            ->where('type', $type)
             ->first();
 
         if ($favorite) {
-            // Remove from favorites
             $favorite->delete();
             $favorited = false;
         } else {
-            // Add to favorites
             Favourites::create([
-                'user_id'  => $user->id,
-                'movie_id' => $movieId,
+                'user_id' => $user->id,
+                'item_id' => $itemId,
+                'type' => $type,
             ]);
             $favorited = true;
         }

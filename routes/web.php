@@ -27,7 +27,8 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth', 'web'])->group(function() {
-    Route::post('favourite/toggle/{movieId}', [FavouritesController::class, 'toggle'])->name('favorites.toggle');
+    Route::post('favorites/toggle/{type}/{itemId}', [FavouritesController::class, 'toggle'])
+        ->name('favorites.toggle');
 });
 
 require __DIR__.'/auth.php';

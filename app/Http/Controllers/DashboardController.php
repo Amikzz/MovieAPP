@@ -23,6 +23,7 @@ class DashboardController extends Controller
         $popularMovies = [];
         $popularTvShows = [];
         $recommendedMovies = [];
+        $recommendedTv     = [];
         $popularGenres = [];
         $popularActors = [];
 
@@ -68,14 +69,16 @@ class DashboardController extends Controller
             Log::error('Unexpected error fetching TV shows', ['message' => $e->getMessage()]);
         }
 
-        // Fetch recommended movies based on user's favorites
         if (auth()->check()) {
-            $favoriteMovieIds = auth()->user()->favorites()->pluck('movie_id');
+            $favorites = auth()->user()->favorites()->select('type', 'item_id')->get();
 
-            foreach ($favoriteMovieIds as $movieId) {
+            foreach ($favorites as $favorite) {
+                $type   = $favorite->type; // "movie" or "tv"
+                $itemId = $favorite->item_id;
+
                 try {
                     $recResponse = Http::timeout(5)
-                        ->get("$baseUrl/movie/$movieId/recommendations", [
+                        ->get("$baseUrl/$type/$itemId/recommendations", [
                             'api_key'  => $apiKey,
                             'language' => 'en-US',
                             'page'     => 1,
@@ -83,32 +86,44 @@ class DashboardController extends Controller
 
                     if ($recResponse->successful()) {
                         $recs = $recResponse->json()['results'] ?? [];
+
                         foreach ($recs as $rec) {
-                            if (!collect($recommendedMovies)->pluck('id')->contains($rec['id'])) {
-                                $recommendedMovies[] = $rec;
+                            // Add media_type to every recommendation
+                            $rec['media_type'] = $type;
+
+                            if ($type === 'movie') {
+                                // Avoid duplicates in movies
+                                $exists = collect($recommendedMovies)
+                                    ->contains(fn($r) => $r['id'] === $rec['id']);
+                                if (! $exists) {
+                                    $recommendedMovies[] = $rec;
+                                }
+                            } elseif ($type === 'tv') {
+                                // Avoid duplicates in tv
+                                $exists = collect($recommendedTv)
+                                    ->contains(fn($r) => $r['id'] === $rec['id']);
+                                if (! $exists) {
+                                    $recommendedTv[] = $rec;
+                                }
                             }
                         }
                     } else {
-                        Log::warning("TMDB Recommendations API returned non-success for movie $movieId", [
+                        Log::warning("TMDB API non-success for $type $itemId", [
                             'status' => $recResponse->status(),
-                            'body' => $recResponse->body(),
+                            'body'   => $recResponse->body(),
                         ]);
                     }
                 } catch (Exception $e) {
-                    Log::error("Unexpected error fetching recommendations for movie $movieId", [
+                    Log::error("Error fetching recommendations for $type $itemId", [
                         'message' => $e->getMessage(),
                     ]);
                 }
             }
 
-            // Shuffle and limit recommended movies to 50
-            $recommendedMovies = collect($recommendedMovies)
-                ->shuffle()
-                ->take(50)
-                ->values() // reset keys
-                ->toArray();
+            // Shuffle and trim to 50 each
+            $recommendedMovies = collect($recommendedMovies)->shuffle()->take(50)->values()->toArray();
+            $recommendedTv     = collect($recommendedTv)->shuffle()->take(50)->values()->toArray();
         }
-
         try {
             // Fetch popular genres
             $genreResponse = Http::timeout(5)
@@ -154,6 +169,7 @@ class DashboardController extends Controller
             'popularMovies' => $popularMovies,
             'popularTvShows' => $popularTvShows,
             'recommendedMovies' => $recommendedMovies,
+            'recommendedTv' => $recommendedTv,
             'popularGenres' => $popularGenres,
             'popularActors' => $popularActors,
             'imageUrl' => $imageUrl,

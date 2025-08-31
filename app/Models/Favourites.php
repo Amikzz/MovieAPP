@@ -10,7 +10,7 @@ class Favourites extends Model
     //Table name
     protected $table = 'favorites';
 
-    protected $fillable = ['user_id', 'movie_id'];
+    protected $fillable = ['user_id', 'item_id', 'type'];
 
     public function user(): BelongsTo
     {

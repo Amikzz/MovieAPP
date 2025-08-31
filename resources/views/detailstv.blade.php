@@ -8,9 +8,7 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = { darkMode: 'media' }; // follows system theme
-    </script>
+    <script>tailwind.config = { darkMode: 'media' };</script>
 
     <!-- Heroicons -->
     <script src="https://unpkg.com/feather-icons"></script>
@@ -34,9 +32,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="min-h-screen
-             bg-gradient-to-br from-white via-gray-100 to-gray-200 text-black
-             dark:bg-gradient-to-br dark:from-[#0f0f0f] dark:via-[#1a1a1a] dark:to-[#0a0a0a] dark:text-white">
+<body class="min-h-screen bg-gradient-to-br from-white via-gray-100 to-gray-200 text-black dark:bg-gradient-to-br dark:from-[#0f0f0f] dark:via-[#1a1a1a] dark:to-[#0a0a0a] dark:text-white">
 
 <!-- Loader -->
 <div id="loader" class="fixed inset-0 flex items-center justify-center bg-white dark:bg-black z-[100] transition-opacity duration-500">
@@ -75,41 +71,38 @@
     <!-- Add to Favorites Button -->
     @auth
         @php
-            // Check if movie is already favorited by the authenticated user
-            $isFavorited = auth()->user()->favorites()
-                                ->where('movie_id', $movie['id'])
-                                ->exists();
+            $isFavorited = auth()->user()->favorites()->where('tv_id', $tvShow['id'])->exists();
         @endphp
 
         <div class="max-w-7xl mx-auto px-8 mt-6 animate-fadeUp delay-400">
             <button
                 x-data="{ favorited: @json($isFavorited), loading: false }"
-                x-on:click="loading = true; fetch('{{ route('favorites.toggle', $movie['id']) }}', {
-                        method: 'POST',
-                        headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json'}
-                    }).then(res => res.json()).then(data => favorited = data.favorited).finally(() => loading = false)"
-                class="flex items-center gap-2 px-5 py-3 rounded-xl shadow-lg font-semibold
-                   text-white transition transform hover:scale-105
-                   bg-gradient-to-r from-red-600 to-pink-500
-                   dark:from-red-700 dark:to-pink-600"
+                x-on:click="loading = true;
+        fetch('{{ route('favorites.toggle', ['type' => 'tv', 'itemId' => $tvShow['id']]) }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+        })
+        .then(res => res.json())
+        .then(data => favorited = data.favorited)
+        .finally(() => loading = false)"
+                class="flex items-center gap-3 px-6 py-3 rounded-full shadow-lg font-semibold
+                       text-white transition transform hover:scale-105
+                       bg-gradient-to-r from-[#e50914] to-[#ff3d5f]
+                       dark:from-[#b20710] dark:to-[#ff1f4f] cursor-pointer"
             >
-                <template x-if="!favorited">
-                    <i data-feather="heart"></i>
-                </template>
-                <template x-if="favorited">
-                    <i data-feather="check"></i>
-                </template>
-
-                <span x-text="favorited ? 'Added to Favorites' : 'Add to Favorites'"></span>
-
-                <svg x-show="loading" class="animate-spin h-5 w-5 ml-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4l-3 3 3 3h-4z"></path>
+                <svg x-show="!favorited" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 8c0-3.2 4-6 8-6s8 2.8 8 6c0 5-8 11-8 11S4 13 4 8z" />
                 </svg>
+                <svg x-show="favorited" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span x-text="favorited ? 'Added to Favorites' : 'Add to Favorites'"></span>
             </button>
         </div>
     @endauth
-
 
     <!-- TV Show Stats -->
     <div class="max-w-7xl mx-auto px-8 py-8 mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 animate-fadeUp delay-200">
@@ -152,13 +145,13 @@
         </div>
     @endif
 
-    <!-- Seasons & Episodes -->
+    <!-- Seasons -->
     @if(!empty($tvShow['seasons']))
         <div class="max-w-7xl mx-auto px-8 py-6 mt-10 animate-fadeUp delay-400">
             <h2 class="text-2xl font-semibold mb-4">Seasons</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 @foreach($tvShow['seasons'] as $season)
-                    <div class="bg-white dark:bg-black/90 rounded-xl p-4 shadow border border-gray-200 dark:border-gray-800">
+                    <div class="bg-white dark:bg-black/90 rounded-xl p-4 shadow border border-gray-200 dark:border-gray-800 hover:scale-105 transition">
                         <img src="https://image.tmdb.org/t/p/w300{{ $season['poster_path'] ?? '' }}"
                              alt="{{ $season['name'] }}"
                              class="rounded-lg mb-2 w-full h-48 object-cover">
@@ -174,13 +167,11 @@
     <!-- Trailer -->
     @if(!empty($tvShow['videos']['results']))
         @php
-            $trailer = collect($tvShow['videos']['results'])
-                        ->firstWhere('type', 'Trailer')
+            $trailer = collect($tvShow['videos']['results'])->firstWhere('type', 'Trailer')
                         ?? collect($tvShow['videos']['results'])->firstWhere('type', 'Teaser')
                         ?? $tvShow['videos']['results'][0] ?? null;
 
             $embedUrl = null;
-
             if ($trailer) {
                 $embedUrl = match (strtolower($trailer['site'])) {
                     'youtube' => "https://www.youtube.com/embed/" . $trailer['key'],
@@ -194,18 +185,16 @@
             <div class="max-w-7xl mx-auto px-8 py-6 mt-10 animate-fadeUp delay-500">
                 <h2 class="text-2xl font-semibold mb-4">Trailer</h2>
                 <div class="relative aspect-video rounded-xl overflow-hidden shadow-lg">
-                    <iframe class="w-full h-full"
-                            src="{{ $embedUrl }}"
-                            title="TV Show Trailer"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen>
-                    </iframe>
+                    <iframe class="w-full h-full" src="{{ $embedUrl }}" title="TV Show Trailer"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>
         @endif
     @endif
 
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
 <script>
     window.addEventListener("load", () => {
