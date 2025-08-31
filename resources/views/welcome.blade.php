@@ -15,6 +15,26 @@
     <!-- ✅ Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet"/>
+
+    <!-- Alpine.js for interactivity -->
+    <script src="//unpkg.com/alpinejs" defer></script>
+
+    <!-- Optional Animation for Modal -->
+    <style>
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-gradient-to-br from-[#0f0f0f] via-[#1a1a1a] to-[#0a0a0a] text-white min-h-screen flex flex-col">
@@ -74,7 +94,8 @@
                             <p class="text-xl text-gray-300 mb-4 drop-shadow">
                                 ⭐ {{ $item['vote_average'] }}
                             </p>
-                            <a href="#"
+                            <a href="{{ isset($item['title']) ? 'https://www.themoviedb.org/movie/' . $item['id'] : 'https://www.themoviedb.org/tv/' . $item['id'] }}"
+                               target="_blank"
                                class="inline-block px-6 py-3 bg-[#e50914] text-white rounded-lg text-base font-semibold shadow hover:bg-[#b20710] transition">
                                 Watch Now
                             </a>
@@ -91,43 +112,75 @@
     </div>
 </section>
 
-<!-- ✅ Main Content (Full Width) -->
 <main class="flex-1 w-full max-w-[1600px] mx-auto px-10 py-10">
 
-    <!-- Popular Movies -->
-    <h1 class="text-3xl font-bold mb-6 text-center">
-        Popular <span class="text-[#e50914]">Movies</span>
-    </h1>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6 mb-14">
-        @foreach($popularMovies as $movie)
-            <div class="group relative rounded-lg overflow-hidden shadow-lg hover:scale-105 transform transition duration-300">
-                <img src="https://image.tmdb.org/t/p/w500{{ $movie['poster_path'] }}"
-                     alt="{{ $movie['title'] }}"
-                     class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
-                    <h2 class="text-lg font-semibold truncate">{{ $movie['title'] }}</h2>
-                    <p class="text-sm text-gray-300">⭐ {{ $movie['vote_average'] }}</p>
-                </div>
-            </div>
-        @endforeach
-    </div>
+    <!-- Alpine.js State for Modal -->
+    <div x-data="{ showModal: false, selected: {} }">
 
-    <!-- Popular TV Shows -->
-    <h1 class="text-3xl font-bold mb-6 text-center">
-        Popular <span class="text-[#e50914]">TV Shows</span>
-    </h1>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6">
-        @foreach($popularTvShows as $show)
-            <div class="group relative rounded-lg overflow-hidden shadow-lg hover:scale-105 transform transition duration-300">
-                <img src="https://image.tmdb.org/t/p/w500{{ $show['poster_path'] }}"
-                     alt="{{ $show['name'] }}"
-                     class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
-                    <h2 class="text-lg font-semibold truncate">{{ $show['name'] }}</h2>
-                    <p class="text-sm text-gray-300">⭐ {{ $show['vote_average'] }}</p>
+        <!-- Popular Movies -->
+        <h1 class="text-3xl font-bold mb-6 text-center">
+            Popular <span class="text-[#e50914]">Movies</span>
+        </h1>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6 mb-14">
+            @foreach($popularMovies as $movie)
+                <div @click="showModal = true; selected = {{ json_encode($movie) }}"
+                     class="group relative rounded-lg overflow-hidden shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
+                    <img src="https://image.tmdb.org/t/p/w500{{ $movie['poster_path'] }}"
+                         alt="{{ $movie['title'] }}"
+                         class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
+                        <h2 class="text-lg font-semibold truncate">{{ $movie['title'] }}</h2>
+                        <p class="text-sm text-gray-300">⭐ {{ $movie['vote_average'] }}</p>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        <!-- Popular TV Shows -->
+        <h1 class="text-3xl font-bold mb-6 text-center">
+            Popular <span class="text-[#e50914]">TV Shows</span>
+        </h1>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6">
+            @foreach($popularTvShows as $show)
+                <div @click="showModal = true; selected = {{ json_encode($show) }}"
+                     class="group relative rounded-lg overflow-hidden shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
+                    <img src="https://image.tmdb.org/t/p/w500{{ $show['poster_path'] }}"
+                         alt="{{ $show['name'] }}"
+                         class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
+                        <h2 class="text-lg font-semibold truncate">{{ $show['name'] }}</h2>
+                        <p class="text-sm text-gray-300">⭐ {{ $show['vote_average'] }}</p>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        <!-- Modal -->
+        <div x-show="showModal"
+             x-transition.opacity
+             class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+             style="display: none;">
+            <div x-transition.scale
+                 @click.away="showModal = false"
+                 class="bg-gray-900 rounded-xl overflow-hidden max-w-3xl w-full shadow-2xl animate-fade-in-up">
+
+                <!-- Banner Image -->
+                <img :src="'https://image.tmdb.org/t/p/original' + (selected.backdrop_path ?? selected.poster_path)"
+                     :alt="selected.title || selected.name"
+                     class="w-full h-64 object-cover">
+
+                <!-- Content -->
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-white mb-2" x-text="selected.title || selected.name"></h2>
+                    <p class="text-gray-300 mb-4" x-text="selected.overview || 'No description available.'"></p>
+                    <p class="text-gray-300 font-semibold mb-4">⭐ <span x-text="selected.vote_average"></span></p>
+                    <button @click="showModal = false"
+                            class="px-5 py-2 bg-[#e50914] text-white rounded-lg font-semibold hover:bg-[#b20710] transition">
+                        Close
+                    </button>
                 </div>
             </div>
-        @endforeach
+        </div>
     </div>
 </main>
 
