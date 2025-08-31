@@ -40,8 +40,49 @@
 <body class="min-h-screen flex flex-col
              bg-gradient-to-br from-white via-gray-100 to-gray-200
              dark:bg-gradient-to-br dark:from-[#0f0f0f] dark:via-[#1a1a1a] dark:to-[#0a0a0a]
-             text-black dark:text-white">
+             text-black dark:text-white
+             overflow-x-hidden">
 
+<!-- ✅ Loading Screen -->
+<div id="loadingScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-black transition-opacity">
+    <div class="flex flex-col items-center">
+        <div class="w-16 h-16 border-4 border-t-[#e50914] border-gray-300 rounded-full animate-spin mb-4"></div>
+        <span class="text-lg font-semibold text-gray-700 dark:text-gray-200">Loading MovieApp...</span>
+    </div>
+</div>
+
+<!-- ✅ Welcome Banner Modal -->
+<div x-data="{ showBanner: true }"
+     x-init="setTimeout(() => showBanner = false, 5000)"
+     x-show="showBanner"
+     x-transition:enter="transition ease-out duration-500"
+     x-transition:enter-start="opacity-0 scale-90"
+     x-transition:enter-end="opacity-100 scale-100"
+     x-transition:leave="transition ease-in duration-500"
+     x-transition:leave-start="opacity-100 scale-100"
+     x-transition:leave-end="opacity-0 scale-90"
+     class="fixed inset-0 z-50 flex items-center justify-center">
+
+    <!-- Background overlay with blur -->
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+    <!-- Banner Content -->
+    <div class="relative bg-[#e50914] text-white rounded-xl shadow-xl p-8 max-w-lg w-[90%] flex flex-col items-center gap-4">
+        <h2 class="text-2xl font-bold text-center">Welcome to MovieApp!</h2>
+        <p class="text-center">Login or Sign up for the Full Experience</p>
+        <button @click="showBanner = false"
+                class="mt-2 px-6 py-2 bg-white text-[#e50914] rounded-lg font-semibold shadow hover:bg-gray-100 transition">
+            ✕ Close
+        </button>
+    </div>
+</div>
+
+<!-- Add this to your main content container -->
+<div :class="{ 'filter blur-sm pointer-events-none': showBanner }" class="transition-all duration-300">
+    <!-- Your actual page content here (Navbar, Hero, Movies, etc.) -->
+</div>
+
+<div id="appContent" class="opacity-0 transition-opacity duration-500">
 <!-- Navbar -->
 <header class="w-full sticky top-0 z-50
                bg-white/90 dark:bg-black/80 backdrop-blur-md shadow">
@@ -232,6 +273,7 @@
         </div>
     </div>
 </footer>
+</div>
 
 <!-- ✅ Swiper JS -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
@@ -251,6 +293,21 @@
             clickable: true,
         },
         effect: "slide",
+    });
+</script>
+
+<script>
+    // Wait for the full page to load
+    window.addEventListener('load', () => {
+        const loader = document.getElementById('loadingScreen');
+        const content = document.getElementById('appContent');
+
+        // Hide loader
+        loader.classList.add('opacity-0');
+        setTimeout(() => loader.style.display = 'none', 500);
+
+        // Show content
+        content.classList.remove('opacity-0');
     });
 </script>
 

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
@@ -14,30 +16,64 @@ class HomeController extends Controller
      */
     public function index(): Factory|View
     {
-        // ✅ Get TMDB config from services.php
+        // ✅ TMDB configuration
         $apiKey   = config('services.tmdb.api_key');
         $baseUrl  = config('services.tmdb.base_url');
         $imageUrl = config('services.tmdb.image_url');
 
-        // ✅ Fetch Popular Movies
-        $moviesResponse = Http::get("{$baseUrl}/movie/popular", [
-            'api_key'  => $apiKey,
-            'language' => 'en-US',
-            'page'     => 1,
-        ]);
+        // Initialize empty arrays in case of failure
+        $popularMovies = [];
+        $popularTvShows = [];
 
-        $popularMovies = $moviesResponse->json()['results'] ?? [];
+        try {
+            // ✅ Fetch Popular Movies with timeout and error handling
+            $moviesResponse = Http::timeout(5) // 5 seconds timeout
+            ->get("$baseUrl/movie/popular", [
+                'api_key'  => $apiKey,
+                'language' => 'en-US',
+                'page'     => 1,
+            ]);
 
-        // ✅ Fetch Popular TV Shows
-        $tvResponse = Http::get("{$baseUrl}/tv/popular", [
-            'api_key'  => $apiKey,
-            'language' => 'en-US',
-            'page'     => 1,
-        ]);
+            // Check if request is successful
+            if ($moviesResponse->successful()) {
+                $popularMovies = $moviesResponse->json()['results'] ?? [];
+            } else {
+                // Log API error
+                Log::warning('TMDB Movies API returned non-success status', [
+                    'status' => $moviesResponse->status(),
+                    'body'   => $moviesResponse->body(),
+                ]);
+            }
+        } catch (Exception $e) {
+            Log::error('Unexpected error fetching movies', [
+                'message' => $e->getMessage(),
+            ]);
+        }
 
-        $popularTvShows = $tvResponse->json()['results'] ?? [];
+        try {
+            // ✅ Fetch Popular TV Shows with timeout and error handling
+            $tvResponse = Http::timeout(5)
+                ->get("$baseUrl/tv/popular", [
+                    'api_key'  => $apiKey,
+                    'language' => 'en-US',
+                    'page'     => 1,
+                ]);
 
-        // ✅ Pass image base URL also to Blade
+            if ($tvResponse->successful()) {
+                $popularTvShows = $tvResponse->json()['results'] ?? [];
+            } else {
+                Log::warning('TMDB TV API returned non-success status', [
+                    'status' => $tvResponse->status(),
+                    'body'   => $tvResponse->body(),
+                ]);
+            }
+        } catch (Exception $e) {
+            Log::error('Unexpected error fetching TV shows', [
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        // ✅ Return Blade view with fallback empty arrays if any request failed
         return view('welcome', [
             'popularMovies' => $popularMovies,
             'popularTvShows' => $popularTvShows,
