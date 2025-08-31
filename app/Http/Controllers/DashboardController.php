@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -12,7 +14,7 @@ class DashboardController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): View|Factory
     {
         // ✅ TMDB configuration
         $apiKey   = config('services.tmdb.api_key');
@@ -82,7 +84,7 @@ class DashboardController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): void
     {
         //
     }
@@ -90,7 +92,7 @@ class DashboardController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): void
     {
         //
     }
@@ -98,15 +100,55 @@ class DashboardController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function showMovie(string $id): View|Factory
     {
-        //
+        // ✅ TMDB configuration
+        $apiKey  = config('services.tmdb.api_key');
+        $baseUrl = config('services.tmdb.base_url');
+
+        // Initialize empty movie array in case of failure
+        $movie = [];
+
+        try {
+            // ✅ Fetch Movie Details with credits
+            $response = Http::timeout(5) // 5 seconds timeout
+            ->get("$baseUrl/movie/$id", [
+                'api_key' => $apiKey,
+                'append_to_response' => 'videos,credits',
+                'language' => 'en-US',
+            ]);
+
+            if ($response->successful()) {
+                $movie = $response->json();
+            } else {
+                // Log non-success status
+                Log::warning('TMDB Movie API returned non-success status', [
+                    'movie_id' => $id,
+                    'status'   => $response->status(),
+                    'body'     => $response->body(),
+                ]);
+            }
+        } catch (Exception $e) {
+            // Log any unexpected error
+            Log::error('Unexpected error fetching movie details', [
+                'movie_id' => $id,
+                'message'  => $e->getMessage(),
+            ]);
+        }
+
+        // If movie is empty, return 404 page or fallback
+        if (empty($movie)) {
+            abort(404, 'Movie not found or failed to load.');
+        }
+
+        // ✅ Return the movie-details view
+        return view('details', compact('movie'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(string $id): void
     {
         //
     }
@@ -114,7 +156,7 @@ class DashboardController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): void
     {
         //
     }
@@ -122,7 +164,7 @@ class DashboardController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id): void
     {
         //
     }

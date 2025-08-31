@@ -145,7 +145,7 @@
     </h1>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6 mb-14">
         @foreach($popularMovies as $movie)
-            <a href=""
+            <a href="{{route('movies.show', ['id' => $movie['id']])}}"
                class="group relative rounded-lg overflow-hidden shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
                 <img src="https://image.tmdb.org/t/p/w500{{ $movie['poster_path'] }}"
                      alt="{{ $movie['title'] }}"
