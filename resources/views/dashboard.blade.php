@@ -15,6 +15,10 @@
 
     <!-- Alpine.js for interactivity -->
     <script src="//unpkg.com/alpinejs" defer></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
 
 <body class="min-h-screen flex flex-col
@@ -77,7 +81,7 @@
                 </button>
 
                 <!-- Dropdown Menu -->
-                <div x-show="open" @click.away="open = false"
+                <div x-show="open" x-cloak @click.away="open = false"
                      x-transition:enter="transition ease-out duration-300"
                      x-transition:enter-start="opacity-0 transform -translate-y-2 scale-95"
                      x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
