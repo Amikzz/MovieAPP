@@ -23,167 +23,165 @@
              text-black dark:text-white
              overflow-x-hidden">
 
-    <!-- Navbar -->
-    <header class="w-full sticky top-0 z-50 bg-white/90 dark:bg-black/80 backdrop-blur-md shadow">
-        <div class="flex items-center justify-between px-6 py-4">
-            <!-- Logo -->
-            <a href="{{ url('/') }}"
-               class="text-2xl font-extrabold tracking-tight transition text-center
-                  text-black dark:text-white hover:text-[#e50914]">
-                Movie<span class="text-[#e50914]">App</span>
+<!-- Navbar -->
+<header class="w-full sticky top-0 z-50 bg-white/90 dark:bg-black/80 backdrop-blur-md shadow">
+    <div class="flex items-center justify-between px-6 py-4">
+
+        <!-- Logo -->
+        <a href="{{ url('/dashboard') }}"
+           class="text-2xl font-extrabold tracking-tight transition text-black dark:text-white hover:text-[#e50914]">
+            Movie<span class="text-[#e50914]">App</span>
+        </a>
+
+        <!-- Centered Navigation Links -->
+        <nav class="hidden md:flex gap-8 mx-auto">
+            <a href="{{ url('/dashboard') }}"
+               class="font-medium transition
+                {{ request()->is('dashboard') ? 'text-[#e50914]' : 'text-black dark:text-white' }}">
+                Home
             </a>
 
-            @auth
-                <!-- Profile Dropdown -->
-                <div class="relative" x-data="{ open: false }">
-                    <!-- Button -->
-                    <button @click="open = !open"
-                            class="flex items-center gap-2 px-4 py-2 bg-[#e50914] text-white rounded-full shadow-md hover:bg-[#b20710] transition transform hover:scale-105 focus:outline-none">
-                        <span class="font-medium">{{ Auth::user()->name }}</span>
-                        <svg class="w-4 h-4 transform transition-transform duration-200"
-                             :class="{'rotate-180': open}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            <a href=""
+               class="text-black dark:text-white font-medium hover:text-[#e50914] transition">
+                Movies
+            </a>
+            <a href=""
+               class="text-black dark:text-white font-medium hover:text-[#e50914] transition">
+                TV Shows
+            </a>
+            <a href=""
+               class="text-black dark:text-white font-medium hover:text-[#e50914] transition">
+                Genres
+            </a>
+            <a href=""
+               class="text-black dark:text-white font-medium hover:text-[#e50914] transition">
+                Actors
+            </a>
+            <a href=""
+               class="text-black dark:text-white font-medium hover:text-[#e50914] transition">
+                Favorites
+            </a>
+        </nav>
+
+        @auth
+            <!-- Profile Dropdown -->
+            <div class="relative" x-data="{ open: false }">
+                <!-- Button -->
+                <button @click="open = !open"
+                        class="flex items-center gap-2 px-4 py-2 bg-[#e50914] text-white rounded-full shadow-md hover:bg-[#b20710] transition transform hover:scale-105 focus:outline-none">
+                    <span class="font-medium">{{ Auth::user()->name }}</span>
+                    <svg class="w-4 h-4 transform transition-transform duration-200"
+                         :class="{'rotate-180': open}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div x-show="open" @click.away="open = false"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 transform -translate-y-2 scale-95"
+                     x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100 transform translate-y-0 scale-100"
+                     x-transition:leave-end="opacity-0 transform -translate-y-2 scale-95"
+                     class="absolute right-0 mt-3 w-52 bg-white dark:bg-gray-900 text-black dark:text-white rounded-xl shadow-2xl overflow-hidden z-50 border border-red-600">
+
+                    <!-- Menu Items -->
+                    <a href="{{ route('settings.profile') }}"
+                       class="flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-800 transition">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A7.968 7.968 0 0112 15c1.657 0 3.168.504 4.379 1.358m1.242 1.446A8.003 8.003 0 015.121 17.804m0 0A7.964 7.964 0 014 12c0-4.418 3.582-8 8-8s8 3.582 8 8a7.964 7.964 0 01-1.121 5.804z"/>
                         </svg>
-                    </button>
-
-                    <!-- Dropdown Menu -->
-                    <div x-show="open" @click.away="open = false"
-                         x-transition:enter="transition ease-out duration-300"
-                         x-transition:enter-start="opacity-0 transform -translate-y-2 scale-95"
-                         x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
-                         x-transition:leave="transition ease-in duration-200"
-                         x-transition:leave-start="opacity-100 transform translate-y-0 scale-100"
-                         x-transition:leave-end="opacity-0 transform -translate-y-2 scale-95"
-                         class="absolute right-0 mt-3 w-52 bg-white dark:bg-gray-900 text-black dark:text-white rounded-xl shadow-2xl overflow-hidden z-50 border border-red-600">
-
-                        <!-- Menu Items -->
-                        <a href="{{ route('settings.profile') }}"
-                           class="flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-800 transition">
-                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A7.968 7.968 0 0112 15c1.657 0 3.168.504 4.379 1.358m1.242 1.446A8.003 8.003 0 015.121 17.804m0 0A7.964 7.964 0 014 12c0-4.418 3.582-8 8-8s8 3.582 8 8a7.964 7.964 0 01-1.121 5.804z"/>
-                            </svg>
-                            My Profile
-                        </a>
-
-                        <a href="{{ route('dashboard') }}"
-                           class="flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-800 transition">
-                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h18v18H3V3z"/>
-                            </svg>
-                            Dashboard
-                        </a>
-
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-800 transition text-left">
-                                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7"/>
-                                </svg>
-                                Logout
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            @endauth
-
-            @guest
-                <nav class="flex items-center gap-4">
-                    <a href="{{ route('login') }}"
-                       class="px-5 py-2 text-sm font-semibold text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:text-[#e50914] transition">
-                        Log in
+                        My Profile
                     </a>
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}"
-                           class="px-5 py-2 bg-[#e50914] text-white rounded-lg text-sm font-semibold shadow hover:bg-[#b20710] transition">
-                            Register
-                        </a>
-                    @endif
-                </nav>
-            @endguest
-        </div>
-    </header>
 
-    <main class="flex-1 w-full max-w-[1600px] mx-auto px-10 py-10">
+                    <a href="{{ route('dashboard') }}"
+                       class="flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-800 transition">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h18v18H3V3z"/>
+                        </svg>
+                        Dashboard
+                    </a>
 
-        <!-- Alpine.js State for Modal -->
-        <div x-data="{ showModal: false, selected: {} }">
-
-            <!-- Popular Movies -->
-            <h1 class="text-3xl font-bold mb-6 text-center">
-                Popular <span class="text-[#e50914]">Movies</span>
-            </h1>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6 mb-14">
-                @foreach($popularMovies as $movie)
-                    <div @click="showModal = true; selected = {{ json_encode($movie) }}"
-                         class="group relative rounded-lg overflow-hidden shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
-                        <img src="https://image.tmdb.org/t/p/w500{{ $movie['poster_path'] }}"
-                             alt="{{ $movie['title'] }}"
-                             class="w-full h-full object-cover">
-                        <div class="absolute inset-0
-                                bg-black/70 dark:bg-black/70
-                                group-hover:bg-black/50 dark:group-hover:bg-black/50
-                                opacity-0 group-hover:opacity-100
-                                transition flex flex-col justify-end p-4">
-
-                            <h2 class="text-lg font-semibold truncate
-                                    text-white dark:text-white">
-                                {{ $movie['title'] }}
-                            </h2>
-                            <p class="text-sm text-white dark:text-white">
-                                ⭐ {{ $movie['vote_average'] }}
-                            </p>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-
-            <!-- Popular TV Shows -->
-            <h1 class="text-3xl font-bold mb-6 text-center">
-                Popular <span class="text-[#e50914]">TV Shows</span>
-            </h1>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6">
-                @foreach($popularTvShows as $show)
-                    <div @click="showModal = true; selected = {{ json_encode($show) }}"
-                         class="group relative rounded-lg overflow-hidden shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
-                        <img src="https://image.tmdb.org/t/p/w500{{ $show['poster_path'] }}"
-                             alt="{{ $show['name'] }}"
-                             class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
-                            <h2 class="text-lg font-semibold truncate">{{ $show['name'] }}</h2>
-                            <p class="text-sm text-gray-300">⭐ {{ $show['vote_average'] }}</p>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-
-            <!-- Modal -->
-            <div x-show="showModal"
-                 x-transition.opacity
-                 class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-                 style="display: none;">
-                <div x-transition.scale
-                     @click.away="showModal = false"
-                     class="bg-gray-900 rounded-xl overflow-hidden max-w-3xl w-full shadow-2xl animate-fade-in-up">
-
-                    <!-- Banner Image -->
-                    <img :src="'https://image.tmdb.org/t/p/original' + (selected.backdrop_path ?? selected.poster_path)"
-                         :alt="selected.title || selected.name"
-                         class="w-full h-64 object-cover" alt="Banner">
-
-                    <!-- Content -->
-                    <div class="p-6">
-                        <h2 class="text-2xl font-bold text-white mb-2" x-text="selected.title || selected.name"></h2>
-                        <p class="text-gray-300 mb-4" x-text="selected.overview || 'No description available.'"></p>
-                        <p class="text-gray-300 font-semibold mb-4">⭐ <span x-text="selected.vote_average"></span></p>
-                        <button @click="showModal = false"
-                                class="px-5 py-2 bg-[#e50914] text-white rounded-lg font-semibold hover:bg-[#b20710] transition">
-                            Close
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-800 transition text-left">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7"/>
+                            </svg>
+                            Logout
                         </button>
-                    </div>
+                    </form>
                 </div>
             </div>
-        </div>
-    </main>
+        @endauth
+
+        @guest
+            <nav class="flex items-center gap-4">
+                <a href="{{ route('login') }}"
+                   class="px-5 py-2 text-sm font-semibold text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:text-[#e50914] transition">
+                    Log in
+                </a>
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}"
+                       class="px-5 py-2 bg-[#e50914] text-white rounded-lg text-sm font-semibold shadow hover:bg-[#b20710] transition">
+                        Register
+                    </a>
+                @endif
+            </nav>
+        @endguest
+    </div>
+</header>
+
+<main class="flex-1 w-full max-w-[1600px] mx-auto px-10 py-10">
+
+    <!-- Popular Movies -->
+    <h1 class="text-3xl font-bold mb-6 text-center">
+        Popular <span class="text-[#e50914]">Movies</span>
+    </h1>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6 mb-14">
+        @foreach($popularMovies as $movie)
+            <a href=""
+               class="group relative rounded-lg overflow-hidden shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
+                <img src="https://image.tmdb.org/t/p/w500{{ $movie['poster_path'] }}"
+                     alt="{{ $movie['title'] }}"
+                     class="w-full h-full object-cover">
+                <div class="absolute inset-0
+                            bg-black/70 dark:bg-black/70
+                            group-hover:bg-black/50 dark:group-hover:bg-black/50
+                            opacity-0 group-hover:opacity-100
+                            transition flex flex-col justify-end p-4">
+                    <h2 class="text-lg font-semibold truncate text-white dark:text-white">
+                        {{ $movie['title'] }}
+                    </h2>
+                    <p class="text-sm text-white dark:text-white">
+                        ⭐ {{ $movie['vote_average'] }}
+                    </p>
+                </div>
+            </a>
+        @endforeach
+    </div>
+
+    <!-- Popular TV Shows -->
+    <h1 class="text-3xl font-bold mb-6 text-center">
+        Popular <span class="text-[#e50914]">TV Shows</span>
+    </h1>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6">
+        @foreach($popularTvShows as $show)
+            <a href=""
+               class="group relative rounded-lg overflow-hidden shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
+                <img src="https://image.tmdb.org/t/p/w500{{ $show['poster_path'] }}"
+                     alt="{{ $show['name'] }}"
+                     class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
+                    <h2 class="text-lg font-semibold truncate">{{ $show['name'] }}</h2>
+                    <p class="text-sm text-gray-300">⭐ {{ $show['vote_average'] }}</p>
+                </div>
+            </a>
+        @endforeach
+    </div>
+
+</main>
 
     <!-- ✅ Modern Footer -->
     <footer class="w-full bg-black/90 backdrop-blur-md py-8 mt-10 border-t border-gray-700/50 text-gray-400">
