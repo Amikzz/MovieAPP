@@ -54,7 +54,7 @@ new class extends Component {
 
             <!-- Home Button -->
             <a href="{{ url('/dashboard') }}"
-               class="px-4 py-2 bg-gray-800 text-white font-semibold rounded-lg shadow hover:bg-gray-900 transition flex items-center gap-2">
+               class="px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold rounded-lg shadow hover:bg-gray-300 dark:hover:bg-gray-900 transition flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4 10v10h16V10"/>
                 </svg>
@@ -64,10 +64,10 @@ new class extends Component {
 
         <!-- Page Heading -->
         <div class="mb-8 text-center md:text-left">
-            <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                 {{ __('Update Password') }}
             </h1>
-            <p class="text-gray-400 mt-2">
+            <p class="text-gray-600 dark:text-gray-400 mt-2">
                 {{ __('Ensure your account is using a long, random password to stay secure') }}
             </p>
         </div>
@@ -85,49 +85,49 @@ new class extends Component {
             @foreach($navItems as $item)
                 <a href="{{ $item['route'] }}"
                    class="px-4 py-2 rounded-xl font-semibold
-                          {{ request()->url() === $item['route'] ? 'bg-[#e50914] text-white' : 'bg-[#1f1f1f] text-gray-400 hover:bg-gray-700 hover:text-white transition' }}">
+                          {{ request()->url() === $item['route'] ? 'bg-[#e50914] text-white' : 'bg-gray-100 dark:bg-[#1f1f1f] text-gray-900 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition' }}">
                     {{ __($item['name']) }}
                 </a>
             @endforeach
         </div>
 
         <!-- Password Form Card -->
-        <div class="bg-[#141414] rounded-2xl shadow-lg p-8 md:p-10 border border-gray-800">
+        <div class="bg-white dark:bg-[#141414] rounded-2xl shadow-lg p-8 md:p-10 border border-gray-300 dark:border-gray-800">
             <form method="POST" wire:submit="updatePassword" class="space-y-6">
                 @csrf
                 <!-- Current Password -->
                 <div>
-                    <label for="current_password" class="block text-sm font-semibold text-gray-300 mb-2">
+                    <label for="current_password" class="block text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2">
                         {{ __('Current Password') }}
                     </label>
                     <input wire:model="current_password" type="password" id="current_password" required
                            autocomplete="current-password"
-                           class="w-full px-4 py-3 rounded-xl bg-[#1f1f1f] border border-gray-700
-                                  text-white placeholder-gray-400 focus:ring-2 focus:ring-[#e50914]
+                           class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-[#1f1f1f] border border-gray-300 dark:border-gray-700
+                                  text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#e50914]
                                   focus:border-[#e50914] transition">
                 </div>
 
                 <!-- New Password -->
                 <div>
-                    <label for="password" class="block text-sm font-semibold text-gray-300 mb-2">
+                    <label for="password" class="block text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2">
                         {{ __('New Password') }}
                     </label>
                     <input wire:model="password" type="password" id="password" required
                            autocomplete="new-password"
-                           class="w-full px-4 py-3 rounded-xl bg-[#1f1f1f] border border-gray-700
-                                  text-white placeholder-gray-400 focus:ring-2 focus:ring-[#e50914]
+                           class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-[#1f1f1f] border border-gray-300 dark:border-gray-700
+                                  text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#e50914]
                                   focus:border-[#e50914] transition">
                 </div>
 
                 <!-- Confirm Password -->
                 <div>
-                    <label for="password_confirmation" class="block text-sm font-semibold text-gray-300 mb-2">
+                    <label for="password_confirmation" class="block text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2">
                         {{ __('Confirm Password') }}
                     </label>
                     <input wire:model="password_confirmation" type="password" id="password_confirmation" required
                            autocomplete="new-password"
-                           class="w-full px-4 py-3 rounded-xl bg-[#1f1f1f] border border-gray-700
-                                  text-white placeholder-gray-400 focus:ring-2 focus:ring-[#e50914]
+                           class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-[#1f1f1f] border border-gray-300 dark:border-gray-700
+                                  text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#e50914]
                                   focus:border-[#e50914] transition">
                 </div>
 

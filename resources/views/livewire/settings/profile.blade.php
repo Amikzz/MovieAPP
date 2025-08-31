@@ -86,7 +86,7 @@ new class extends Component {
 
             <!-- Home Button -->
             <a href="{{ url('/dashboard') }}"
-               class="px-4 py-2 bg-gray-800 text-white font-semibold rounded-lg shadow hover:bg-gray-900 transition flex items-center gap-2">
+               class="px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold rounded-lg shadow hover:bg-gray-300 dark:hover:bg-gray-900 transition flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4 10v10h16V10"/>
                 </svg>
@@ -96,10 +96,10 @@ new class extends Component {
 
         <!-- Page Heading -->
         <div class="mb-8 text-center md:text-left">
-            <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                 {{ __('Profile Settings') }}
             </h1>
-            <p class="text-gray-400 mt-2">
+            <p class="text-gray-600 dark:text-gray-400 mt-2">
                 {{ __('Update your name and email address') }}
             </p>
         </div>
@@ -117,39 +117,39 @@ new class extends Component {
             @foreach($navItems as $item)
                 <a href="{{ $item['route'] }}"
                    class="px-4 py-2 rounded-xl font-semibold
-                          {{ request()->url() === $item['route'] ? 'bg-[#e50914] text-white' : 'bg-[#1f1f1f] text-gray-400 hover:bg-gray-700 hover:text-white transition' }}">
+                          {{ request()->url() === $item['route'] ? 'bg-[#e50914] text-white' : 'bg-gray-100 dark:bg-[#1f1f1f] text-gray-900 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition' }}">
                     {{ __($item['name']) }}
                 </a>
             @endforeach
         </div>
 
         <!-- Profile Form Card -->
-        <div class="bg-[#141414] rounded-2xl shadow-lg p-8 md:p-10 border border-gray-800">
+        <div class="bg-white dark:bg-[#141414] rounded-2xl shadow-lg p-8 md:p-10 border border-gray-300 dark:border-gray-800">
             <form wire:submit="updateProfileInformation" class="space-y-6">
                 <!-- Name -->
                 <div>
-                    <label for="name" class="block text-sm font-semibold text-gray-300 mb-2">
+                    <label for="name" class="block text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2">
                         {{ __('Name') }}
                     </label>
                     <input wire:model="name" type="text" id="name" required
-                           class="w-full px-4 py-3 rounded-xl bg-[#1f1f1f] border border-gray-700
-                                  text-white placeholder-gray-400 focus:ring-2 focus:ring-[#e50914]
+                           class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-[#1f1f1f] border border-gray-300 dark:border-gray-700
+                                  text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#e50914]
                                   focus:border-[#e50914] transition">
                 </div>
 
                 <!-- Email -->
                 <div>
-                    <label for="email" class="block text-sm font-semibold text-gray-300 mb-2">
+                    <label for="email" class="block text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2">
                         {{ __('Email') }}
                     </label>
-                    <input wire:model="email" type="email" id="email" required
-                           class="w-full px-4 py-3 rounded-xl bg-[#1f1f1f] border border-gray-700
-                                  text-white placeholder-gray-400 focus:ring-2 focus:ring-[#e50914]
-                                  focus:border-[#e50914] transition" readonly>
+                    <input wire:model="email" type="email" id="email" required readonly
+                           class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-[#1f1f1f] border border-gray-300 dark:border-gray-700
+                                  text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#e50914]
+                                  focus:border-[#e50914] transition">
 
                     <!-- Verification Notice -->
                     @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
-                        <div class="mt-4 text-gray-400 text-sm">
+                        <div class="mt-4 text-gray-600 dark:text-gray-400 text-sm">
                             {{ __('Your email address is unverified.') }}
                             <button wire:click.prevent="resendVerificationNotification"
                                     class="ml-2 underline text-[#e50914] hover:text-[#ff3d5f] transition">
@@ -182,9 +182,9 @@ new class extends Component {
         </div>
 
         <!-- Danger Zone (Delete User) -->
-        <div class="mt-10 bg-[#1f1f1f] rounded-2xl p-6 border border-red-800">
-            <h2 class="text-xl font-bold text-red-500 mb-3">{{ __('Danger Zone') }}</h2>
-            <p class="text-gray-400 mb-4">{{ __('Permanently delete your account and all data.') }}</p>
+        <div class="mt-10 bg-gray-100 dark:bg-[#1f1f1f] rounded-2xl p-6 border border-red-300 dark:border-red-800">
+            <h2 class="text-xl font-bold text-red-600 dark:text-red-500 mb-3">{{ __('Danger Zone') }}</h2>
+            <p class="text-gray-700 dark:text-gray-400 mb-4">{{ __('Permanently delete your account and all data.') }}</p>
             <livewire:settings.delete-user-form />
         </div>
     </section>
