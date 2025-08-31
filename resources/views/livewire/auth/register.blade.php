@@ -86,10 +86,15 @@ new #[Layout('components.layouts.auth')] class extends Component {
         />
 
         <div class="flex items-center justify-end">
-            <flux:button type="submit" variant="primary" class="w-full">
+            <flux:button
+                type="submit"
+                variant="primary"
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md py-3 transition-colors duration-200"
+            >
                 {{ __('Create account') }}
             </flux:button>
         </div>
+
     </form>
 
     <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
