@@ -40,7 +40,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        // ✅ Use Livewire redirect
+        $this->redirect(session()->pull('url.intended', route('dashboard')));
     }
 
     /**
