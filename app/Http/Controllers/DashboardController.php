@@ -23,6 +23,8 @@ class DashboardController extends Controller
         $popularMovies = [];
         $popularTvShows = [];
         $recommendedMovies = [];
+        $popularGenres = [];
+        $popularActors = [];
 
         try {
             // Fetch popular movies
@@ -66,7 +68,7 @@ class DashboardController extends Controller
             Log::error('Unexpected error fetching TV shows', ['message' => $e->getMessage()]);
         }
 
-        // ✅ Fetch recommended movies based on user's favorites
+        // Fetch recommended movies based on user's favorites
         if (auth()->check()) {
             $favoriteMovieIds = auth()->user()->favorites()->pluck('movie_id');
 
@@ -81,7 +83,6 @@ class DashboardController extends Controller
 
                     if ($recResponse->successful()) {
                         $recs = $recResponse->json()['results'] ?? [];
-                        // Merge without duplicates
                         foreach ($recs as $rec) {
                             if (!collect($recommendedMovies)->pluck('id')->contains($rec['id'])) {
                                 $recommendedMovies[] = $rec;
@@ -99,12 +100,62 @@ class DashboardController extends Controller
                     ]);
                 }
             }
+
+            // Shuffle and limit recommended movies to 50
+            $recommendedMovies = collect($recommendedMovies)
+                ->shuffle()
+                ->take(50)
+                ->values() // reset keys
+                ->toArray();
+        }
+
+        try {
+            // Fetch popular genres
+            $genreResponse = Http::timeout(5)
+                ->get("$baseUrl/genre/movie/list", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                ]);
+
+            if ($genreResponse->successful()) {
+                $popularGenres = $genreResponse->json()['genres'] ?? [];
+            } else {
+                Log::warning('TMDB Genre API returned non-success status', [
+                    'status' => $genreResponse->status(),
+                    'body' => $genreResponse->body(),
+                ]);
+            }
+        } catch (Exception $e) {
+            Log::error('Unexpected error fetching genres', ['message' => $e->getMessage()]);
+        }
+
+        try {
+            // Fetch popular actors
+            $actorsResponse = Http::timeout(5)
+                ->get("$baseUrl/person/popular", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                    'page' => 1,
+                ]);
+
+            if ($actorsResponse->successful()) {
+                $popularActors = $actorsResponse->json()['results'] ?? [];
+            } else {
+                Log::warning('TMDB Actors API returned non-success status', [
+                    'status' => $actorsResponse->status(),
+                    'body' => $actorsResponse->body(),
+                ]);
+            }
+        } catch (Exception $e) {
+            Log::error('Unexpected error fetching popular actors', ['message' => $e->getMessage()]);
         }
 
         return view('dashboard', [
             'popularMovies' => $popularMovies,
             'popularTvShows' => $popularTvShows,
             'recommendedMovies' => $recommendedMovies,
+            'popularGenres' => $popularGenres,
+            'popularActors' => $popularActors,
             'imageUrl' => $imageUrl,
         ]);
     }

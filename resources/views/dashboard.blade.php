@@ -53,10 +53,37 @@
                class="text-black dark:text-white font-medium hover:text-[#e50914] transition">
                 TV Shows
             </a>
-            <a href=""
-               class="text-black dark:text-white font-medium hover:text-[#e50914] transition">
-                Genres
-            </a>
+            <!-- Navbar Genres Dropdown -->
+            <div x-data="{ open: false }" class="relative">
+                <a href="#"
+                   @mouseenter="open = true"
+                   @mouseleave="open = false"
+                   class="text-black dark:text-white font-medium hover:text-[#e50914] transition cursor-pointer">
+                    Genres
+                </a>
+
+                <!-- Dropdown Menu -->
+                <div x-show="open"
+                     x-cloak
+                     @mouseenter="open = true"
+                     @mouseleave="open = false"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 translate-y-2"
+                     class="absolute left-0 mt-2 min-w-[18rem] max-w-[24rem] bg-white dark:bg-gray-800 shadow-lg rounded-lg z-50 p-4 grid grid-cols-2 gap-2 border border-gray-200 dark:border-gray-700"
+                >
+                    @foreach($popularGenres as $genre)
+                        <a href="#"
+                           class="block px-3 py-2 rounded hover:bg-[#e50914] hover:text-white text-gray-700 dark:text-gray-200 transition font-medium whitespace-nowrap min-w-max">
+                            {{ $genre['name'] }}
+                        </a>
+                    @endforeach
+                </div>
+
+            </div>
             <a href=""
                class="text-black dark:text-white font-medium hover:text-[#e50914] transition">
                 Actors
@@ -424,6 +451,114 @@
         </style>
     @endif
 
+    <!-- Popular Actors Section -->
+    @if(collect($popularActors)->isNotEmpty())
+        <section class="mb-14 relative">
+            <h1 class="text-3xl font-bold mb-6 text-center">
+                Popular <span class="text-[#e50914]">Actors</span>
+            </h1>
+
+            <div x-data class="relative">
+                <!-- Left Arrow -->
+                <button
+                    @click="$refs.scrollContainer.scrollBy({ left: -300, behavior: 'smooth' })"
+                    class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full z-10 shadow-lg"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+
+                <!-- Scrollable Actors Row -->
+                <div
+                    x-ref="scrollContainer"
+                    class="flex gap-4 px-4 overflow-x-auto overflow-y-hidden no-scrollbar py-2"
+                    style="scroll-behavior: smooth;"
+                >
+                    @foreach($popularActors as $actor)
+                        <div class="flex-shrink-0 w-48 md:w-56 relative group rounded-lg shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
+                            <a href="">
+                                <img src="https://image.tmdb.org/t/p/w500{{ $actor['profile_path'] ?? '' }}"
+                                     alt="{{ $actor['name'] }}"
+                                     class="w-full h-72 md:h-80 object-cover rounded-lg">
+                            </a>
+
+                            <!-- Overlay with Name -->
+                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3 rounded-lg">
+                                <h2 class="text-md md:text-lg font-semibold truncate text-white">{{ $actor['name'] }}</h2>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Right Arrow -->
+                <button
+                    @click="$refs.scrollContainer.scrollBy({ left: 300, behavior: 'smooth' })"
+                    class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full z-10 shadow-lg"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </section>
+
+        <style>
+            /* Hide scrollbar for all browsers */
+            .no-scrollbar::-webkit-scrollbar { display: none; }
+            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        </style>
+    @endif
+
+    <!-- Popular Genres Section -->
+    @if(collect($popularGenres)->isNotEmpty())
+        <section class="mb-14 relative">
+            <h1 class="text-3xl font-bold mb-6 text-center">
+                Popular <span class="text-[#e50914]">Genres</span>
+            </h1>
+
+            <div x-data class="relative">
+                <!-- Left Arrow -->
+                <button
+                    @click="$refs.scrollContainer.scrollBy({ left: -300, behavior: 'smooth' })"
+                    class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full z-10 shadow-lg"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+
+                <!-- Scrollable Genres Row -->
+                <div
+                    x-ref="scrollContainer"
+                    class="flex gap-4 px-4 overflow-x-auto overflow-y-hidden no-scrollbar py-2"
+                    style="scroll-behavior: smooth;"
+                >
+                    @foreach($popularGenres as $genre)
+                        <div class="flex-shrink-0 w-40 md:w-48 relative group rounded-lg shadow-lg hover:scale-105 transform transition duration-300 bg-gradient-to-r from-gray-700 to-gray-900 text-white flex items-center justify-center h-24 md:h-32 cursor-pointer">
+                            <span class="text-lg md:text-xl font-semibold">{{ $genre['name'] }}</span>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Right Arrow -->
+                <button
+                    @click="$refs.scrollContainer.scrollBy({ left: 300, behavior: 'smooth' })"
+                    class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full z-10 shadow-lg"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </section>
+
+        <style>
+            /* Hide scrollbar for all browsers */
+            .no-scrollbar::-webkit-scrollbar { display: none; }
+            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        </style>
+    @endif
 </main>
 
     <!-- ✅ Modern Footer -->
