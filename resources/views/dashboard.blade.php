@@ -131,15 +131,6 @@
                         My Profile
                     </a>
 
-                    <a href="{{ route('dashboard') }}"
-                       class="flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-800 transition">
-                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2"
-                             viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h18v18H3V3z"/>
-                        </svg>
-                        Dashboard
-                    </a>
-
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit"

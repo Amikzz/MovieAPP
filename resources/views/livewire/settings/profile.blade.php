@@ -69,46 +69,123 @@ new class extends Component {
     }
 }; ?>
 
-<section class="w-full">
-    @include('partials.settings-heading')
+<div>
+    <!-- Profile Settings Section -->
+    <section class="w-full px-6 md:px-12 lg:px-24 py-10">
 
-    <x-settings.layout :heading="__('Profile')" :subheading="__('Update your name and email address')">
-        <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-6">
-            <flux:input wire:model="name" :label="__('Name')" type="text" required autofocus autocomplete="name" />
+        <!-- Top Buttons: Back & Home -->
+        <div class="flex gap-3 mb-6">
+            <!-- Back Button -->
+            <a href="{{ url()->previous() }}"
+               class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow hover:bg-red-700 transition flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12.707 14.707a1 1 0 01-1.414 0L7 10.414l4.293-4.293a1 1 0 011.414 1.414L10.414 10l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                {{ __('Back') }}
+            </a>
 
-            <div>
-                <flux:input wire:model="email" :label="__('Email')" type="email" required autocomplete="email" />
+            <!-- Home Button -->
+            <a href="{{ url('/dashboard') }}"
+               class="px-4 py-2 bg-gray-800 text-white font-semibold rounded-lg shadow hover:bg-gray-900 transition flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4 10v10h16V10"/>
+                </svg>
+                {{ __('Home') }}
+            </a>
+        </div>
 
-                @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail &&! auth()->user()->hasVerifiedEmail())
-                    <div>
-                        <flux:text class="mt-4">
-                            {{ __('Your email address is unverified.') }}
+        <!-- Page Heading -->
+        <div class="mb-8 text-center md:text-left">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                {{ __('Profile Settings') }}
+            </h1>
+            <p class="text-gray-400 mt-2">
+                {{ __('Update your name and email address') }}
+            </p>
+        </div>
 
-                            <flux:link class="text-sm cursor-pointer" wire:click.prevent="resendVerificationNotification">
-                                {{ __('Click here to re-send the verification email.') }}
-                            </flux:link>
-                        </flux:text>
+        <!-- Settings Nav -->
+        <div class="flex gap-4 mb-8 justify-center md:justify-start flex-wrap md:flex-nowrap">
+            @php
+                $navItems = [
+                    ['name' => 'Profile', 'route' => route('settings.profile')],
+                    ['name' => 'Password', 'route' => route('settings.password')],
+                    ['name' => 'Appearance', 'route' => route('settings.appearance')],
+                ];
+            @endphp
 
-                        @if (session('status') === 'verification-link-sent')
-                            <flux:text class="mt-2 font-medium !dark:text-green-400 !text-green-600">
-                                {{ __('A new verification link has been sent to your email address.') }}
-                            </flux:text>
-                        @endif
-                    </div>
-                @endif
-            </div>
+            @foreach($navItems as $item)
+                <a href="{{ $item['route'] }}"
+                   class="px-4 py-2 rounded-xl font-semibold
+                          {{ request()->url() === $item['route'] ? 'bg-[#e50914] text-white' : 'bg-[#1f1f1f] text-gray-400 hover:bg-gray-700 hover:text-white transition' }}">
+                    {{ __($item['name']) }}
+                </a>
+            @endforeach
+        </div>
 
-            <div class="flex items-center gap-4">
-                <div class="flex items-center justify-end">
-                    <flux:button variant="primary" type="submit" class="w-full">{{ __('Save') }}</flux:button>
+        <!-- Profile Form Card -->
+        <div class="bg-[#141414] rounded-2xl shadow-lg p-8 md:p-10 border border-gray-800">
+            <form wire:submit="updateProfileInformation" class="space-y-6">
+                <!-- Name -->
+                <div>
+                    <label for="name" class="block text-sm font-semibold text-gray-300 mb-2">
+                        {{ __('Name') }}
+                    </label>
+                    <input wire:model="name" type="text" id="name" required
+                           class="w-full px-4 py-3 rounded-xl bg-[#1f1f1f] border border-gray-700
+                                  text-white placeholder-gray-400 focus:ring-2 focus:ring-[#e50914]
+                                  focus:border-[#e50914] transition">
                 </div>
 
-                <x-action-message class="me-3" on="profile-updated">
-                    {{ __('Saved.') }}
-                </x-action-message>
-            </div>
-        </form>
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-semibold text-gray-300 mb-2">
+                        {{ __('Email') }}
+                    </label>
+                    <input wire:model="email" type="email" id="email" required
+                           class="w-full px-4 py-3 rounded-xl bg-[#1f1f1f] border border-gray-700
+                                  text-white placeholder-gray-400 focus:ring-2 focus:ring-[#e50914]
+                                  focus:border-[#e50914] transition" readonly>
 
-        <livewire:settings.delete-user-form />
-    </x-settings.layout>
-</section>
+                    <!-- Verification Notice -->
+                    @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
+                        <div class="mt-4 text-gray-400 text-sm">
+                            {{ __('Your email address is unverified.') }}
+                            <button wire:click.prevent="resendVerificationNotification"
+                                    class="ml-2 underline text-[#e50914] hover:text-[#ff3d5f] transition">
+                                {{ __('Click here to re-send the verification email.') }}
+                            </button>
+
+                            @if (session('status') === 'verification-link-sent')
+                                <p class="mt-2 text-green-500 font-medium">
+                                    {{ __('A new verification link has been sent to your email address.') }}
+                                </p>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Save Button + Status -->
+                <div class="flex items-center justify-between mt-6">
+                    <button type="submit"
+                            class="px-6 py-3 rounded-full font-semibold shadow-lg
+                                   text-white transition transform hover:scale-105
+                                   bg-gradient-to-r from-[#e50914] to-[#ff3d5f]">
+                        {{ __('Save Changes') }}
+                    </button>
+
+                    <x-action-message class="text-green-500 font-medium" on="profile-updated">
+                        {{ __('Saved.') }}
+                    </x-action-message>
+                </div>
+            </form>
+        </div>
+
+        <!-- Danger Zone (Delete User) -->
+        <div class="mt-10 bg-[#1f1f1f] rounded-2xl p-6 border border-red-800">
+            <h2 class="text-xl font-bold text-red-500 mb-3">{{ __('Danger Zone') }}</h2>
+            <p class="text-gray-400 mb-4">{{ __('Permanently delete your account and all data.') }}</p>
+            <livewire:settings.delete-user-form />
+        </div>
+    </section>
+</div>
