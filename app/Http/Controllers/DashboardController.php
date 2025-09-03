@@ -300,6 +300,7 @@ class DashboardController extends Controller
 
         $actor = [];
         $paginatedCredits = [];
+        $popularGenres = [];
 
         try {
             // ✅ Fetch Actor Details with credits & images
@@ -346,6 +347,26 @@ class DashboardController extends Controller
             ]);
         }
 
+        try {
+            // Fetch popular genres
+            $genreResponse = Http::timeout(5)
+                ->get("$baseUrl/genre/movie/list", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                ]);
+
+            if ($genreResponse->successful()) {
+                $popularGenres = $genreResponse->json()['genres'] ?? [];
+            } else {
+                Log::warning('TMDB Genre API returned non-success status', [
+                    'status' => $genreResponse->status(),
+                    'body' => $genreResponse->body(),
+                ]);
+            }
+        } catch (Exception $e) {
+            Log::error('Unexpected error fetching genres', ['message' => $e->getMessage()]);
+        }
+
         if (empty($actor)) {
             abort(404, 'Actor not found or failed to load.');
         }
@@ -354,6 +375,7 @@ class DashboardController extends Controller
         return view('detailsactor', [
             'actor' => $actor,
             'credits' => $paginatedCredits,
+            'popularGenres' => $popularGenres
         ]);
     }
 
