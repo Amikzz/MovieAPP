@@ -37,4 +37,4 @@ Route::middleware(['auth', 'web'])->group(function () {
         ->name('favorites.toggle');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

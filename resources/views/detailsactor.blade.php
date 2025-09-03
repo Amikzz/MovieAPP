@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+@php use Illuminate\Support\Str; @endphp
+    <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
@@ -120,7 +121,7 @@
             </a>
         </nav>
 
-    @auth
+        @auth
             <div class="relative" x-data="{ open: false }">
                 <button @click="open = !open"
                         class="flex items-center gap-2 px-4 py-2 bg-[#e50914] text-white rounded-full shadow-md hover:bg-[#b20710] transition transform hover:scale-105 focus:outline-none">
@@ -197,7 +198,7 @@
 
             <!-- Biography / Description -->
             <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-                {{ $actor['biography'] ? \Illuminate\Support\Str::limit($actor['biography'], 300, '...') : 'No biography available.' }}
+                {{ $actor['biography'] ? Str::limit($actor['biography'], 300, '...') : 'No biography available.' }}
             </p>
 
             <!-- Actor Details -->

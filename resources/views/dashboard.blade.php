@@ -97,7 +97,7 @@
             </a>
         </nav>
 
-    @auth
+        @auth
             <!-- Profile Dropdown -->
             <div class="relative" x-data="{ open: false }">
                 <!-- Button -->

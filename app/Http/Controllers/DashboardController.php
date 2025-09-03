@@ -179,7 +179,7 @@ class DashboardController extends Controller
         ]);
     }
 
-/**
+    /**
      * Show the form for creating a new resource.
      */
     public function create(): void
@@ -328,7 +328,7 @@ class DashboardController extends Controller
                 $currentPage = request()->get('page', 1);
                 $pagedItems = $combinedCredits->forPage($currentPage, $perPage);
 
-                $paginatedCredits = new \Illuminate\Pagination\LengthAwarePaginator(
+                $paginatedCredits = new LengthAwarePaginator(
                     $pagedItems,
                     $combinedCredits->count(),
                     $perPage,
@@ -342,7 +342,7 @@ class DashboardController extends Controller
                     'body' => $response->body(),
                 ]);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Unexpected error fetching actor details', [
                 'actor_id' => $id,
                 'message' => $e->getMessage(),

@@ -13,7 +13,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 
     <!-- ✅ Preload Fonts -->
-    <link rel="preload" as="style" href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" onload="this.rel='stylesheet'">
+    <link rel="preload" as="style" href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700"
+          onload="this.rel='stylesheet'">
     <noscript>
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet"/>
     </noscript>
@@ -23,10 +24,19 @@
 
     <!-- Optional Animation -->
     <style>
-        .animate-fade-in-up { animation: fadeInUp 0.4s ease-out forwards; }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
         @keyframes fadeInUp {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -59,7 +69,8 @@
 
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
-    <div class="relative bg-[#e50914] text-white rounded-xl shadow-xl p-8 max-w-lg w-[90%] flex flex-col items-center gap-4">
+    <div
+        class="relative bg-[#e50914] text-white rounded-xl shadow-xl p-8 max-w-lg w-[90%] flex flex-col items-center gap-4">
         <h2 class="text-2xl font-bold text-center">Welcome to MovieApp!</h2>
         <p class="text-center">Login or Sign up for the Full Experience</p>
         <button @click="showBanner = false"
@@ -114,7 +125,8 @@
                                  src="https://image.tmdb.org/t/p/original{{ $item['backdrop_path'] ?? $item['poster_path'] }}"
                                  alt="{{ $item['title'] ?? $item['name'] }}"
                                  class="absolute inset-0 w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-gradient-to-t from-white/50 via-white/20 to-transparent dark:from-black dark:via-black/40 dark:to-transparent flex items-end">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-white/50 via-white/20 to-transparent dark:from-black dark:via-black/40 dark:to-transparent flex items-end">
                                 <div class="p-8 md:p-16 max-w-3xl -translate-y-20">
                                     <h2 class="text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-lg text-black dark:text-white">
                                         {{ $item['title'] ?? $item['name'] }}
@@ -146,7 +158,8 @@
                              class="group relative rounded-lg overflow-hidden shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
                             <img loading="lazy" src="https://image.tmdb.org/t/p/w500{{ $movie['poster_path'] }}"
                                  alt="{{ $movie['title'] }}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-black/70 dark:bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
+                            <div
+                                class="absolute inset-0 bg-black/70 dark:bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
                                 <h2 class="text-lg font-semibold truncate text-white dark:text-white">{{ $movie['title'] }}</h2>
                                 <p class="text-sm text-white dark:text-white">⭐ {{ $movie['vote_average'] }}</p>
                             </div>
@@ -155,14 +168,16 @@
                 </div>
 
                 <!-- Popular TV Shows Grid -->
-                <h1 class="text-3xl font-bold mb-6 text-center">Popular <span class="text-[#e50914]">TV Shows</span></h1>
+                <h1 class="text-3xl font-bold mb-6 text-center">Popular <span class="text-[#e50914]">TV Shows</span>
+                </h1>
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6">
                     @foreach($popularTvShows as $show)
                         <div @click="showModal = true; selected = {{ json_encode($show) }}"
                              class="group relative rounded-lg overflow-hidden shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
                             <img loading="lazy" src="https://image.tmdb.org/t/p/w500{{ $show['poster_path'] }}"
                                  alt="{{ $show['name'] }}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
+                            <div
+                                class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4">
                                 <h2 class="text-lg font-semibold truncate">{{ $show['name'] }}</h2>
                                 <p class="text-sm text-gray-300">⭐ {{ $show['vote_average'] }}</p>
                             </div>
@@ -175,13 +190,16 @@
                      class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" style="display: none;">
                     <div x-transition.scale @click.away="showModal = false"
                          class="bg-gray-900 rounded-xl overflow-hidden max-w-3xl w-full shadow-2xl animate-fade-in-up">
-                        <img :src="'https://image.tmdb.org/t/p/original'+(selected.backdrop_path ?? selected.poster_path)"
-                             :alt="selected.title || selected.name"
-                             class="w-full h-64 object-cover">
+                        <img
+                            :src="'https://image.tmdb.org/t/p/original'+(selected.backdrop_path ?? selected.poster_path)"
+                            :alt="selected.title || selected.name"
+                            class="w-full h-64 object-cover">
                         <div class="p-6">
-                            <h2 class="text-2xl font-bold text-white mb-2" x-text="selected.title || selected.name"></h2>
+                            <h2 class="text-2xl font-bold text-white mb-2"
+                                x-text="selected.title || selected.name"></h2>
                             <p class="text-gray-300 mb-4" x-text="selected.overview || 'No description available.'"></p>
-                            <p class="text-gray-300 font-semibold mb-4">⭐ <span x-text="selected.vote_average"></span></p>
+                            <p class="text-gray-300 font-semibold mb-4">⭐ <span x-text="selected.vote_average"></span>
+                            </p>
                             <button @click="showModal = false"
                                     class="px-5 py-2 bg-[#e50914] text-white rounded-lg font-semibold hover:bg-[#b20710] transition">
                                 Close
@@ -195,7 +213,8 @@
         <!-- Footer -->
         <footer class="w-full bg-black/90 backdrop-blur-md py-8 mt-10 border-t border-gray-700/50 text-gray-400">
             <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                <p class="text-sm md:text-base">© {{ date('Y') }} <span class="font-semibold text-white">MovieApp</span>. All rights reserved.</p>
+                <p class="text-sm md:text-base">© {{ date('Y') }} <span class="font-semibold text-white">MovieApp</span>.
+                    All rights reserved.</p>
                 <div class="flex items-center gap-4">
                     <!-- Social Icons (SVG) -->
                 </div>
@@ -216,9 +235,9 @@
 
         const swiper = new Swiper(".mySwiper", {
             loop: true,
-            autoplay: { delay: 4000, disableOnInteraction: false },
-            navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
-            pagination: { el: ".swiper-pagination", clickable: true },
+            autoplay: {delay: 4000, disableOnInteraction: false},
+            navigation: {nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev"},
+            pagination: {el: ".swiper-pagination", clickable: true},
             effect: "slide",
         });
     });

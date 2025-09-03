@@ -8,7 +8,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = { darkMode: 'media' }
+        tailwind.config = {darkMode: 'media'}
     </script>
 
     <!-- Heroicons -->
@@ -19,7 +19,9 @@
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet"/>
 
     <style>
-        body { font-family: 'instrument-sans', sans-serif; }
+        body {
+            font-family: 'instrument-sans', sans-serif;
+        }
 
         .loader {
             border: 4px solid #ddd;
@@ -31,8 +33,12 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
@@ -184,7 +190,8 @@
             {{ $genreName ?? 'Genre' }} Movies
         </h1>
         <p class="text-gray-700 dark:text-gray-300">
-            Browse movies from the <span class="text-[#e50914] font-semibold">{{ $genreName ?? 'Selected' }}</span> genre.
+            Browse movies from the <span class="text-[#e50914] font-semibold">{{ $genreName ?? 'Selected' }}</span>
+            genre.
         </p>
     </div>
 
@@ -201,12 +208,14 @@
                             : false;
                     @endphp
 
-                    <div class="relative group rounded-xl overflow-hidden shadow-lg hover:scale-105 transform transition duration-300">
+                    <div
+                        class="relative group rounded-xl overflow-hidden shadow-lg hover:scale-105 transform transition duration-300">
                         <img src="https://image.tmdb.org/t/p/w500{{ $movie['poster_path'] ?? '' }}"
                              alt="{{ $movie['title'] ?? 'Untitled' }}"
                              class="w-full h-72 object-cover rounded-xl">
 
-                        <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3 rounded-xl">
+                        <div
+                            class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3 rounded-xl">
                             <h3 class="text-md md:text-lg font-semibold truncate text-white">
                                 {{ $movie['title'] ?? 'Untitled' }}
                             </h3>
