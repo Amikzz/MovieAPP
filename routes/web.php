@@ -27,6 +27,9 @@ Route::middleware(['auth'])->group(function () {
 
     //Actor Details Route
     Route::get('actor/{id}', [DashboardController::class, 'showActor'])->name('actor.show');
+
+    //Genre Details Route
+    Route::get('/genre/{id}', [DashboardController::class, 'showGenre'])->name('genre.show');
 });
 
 Route::middleware(['auth', 'web'])->group(function () {

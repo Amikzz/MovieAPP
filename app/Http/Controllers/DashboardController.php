@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -294,17 +295,15 @@ class DashboardController extends Controller
      */
     public function showActor(string $id): View|Factory
     {
-        // ✅ TMDB configuration
         $apiKey = config('services.tmdb.api_key');
         $baseUrl = config('services.tmdb.base_url');
 
-        // Initialize empty actor array in case of failure
         $actor = [];
+        $paginatedCredits = [];
 
         try {
             // ✅ Fetch Actor Details with credits & images
-            $response = Http::timeout(5) // 5 seconds timeout
-            ->get("$baseUrl/person/$id", [
+            $response = Http::timeout(5)->get("$baseUrl/person/$id", [
                 'api_key' => $apiKey,
                 'append_to_response' => 'combined_credits,images',
                 'language' => 'en-US',
@@ -312,29 +311,120 @@ class DashboardController extends Controller
 
             if ($response->successful()) {
                 $actor = $response->json();
+
+                // ✅ Extract all credits (movies + tv shows)
+                $combinedCredits = collect($actor['combined_credits']['cast'] ?? [])
+                    ->sortByDesc(function ($credit) {
+                        // sort by release/air date, newest first
+                        return $credit['release_date'] ?? $credit['first_air_date'] ?? '';
+                    })
+                    ->values();
+
+                // ✅ Pagination
+                $perPage = 10; // you can increase/decrease this
+                $currentPage = request()->get('page', 1);
+                $pagedItems = $combinedCredits->forPage($currentPage, $perPage);
+
+                $paginatedCredits = new \Illuminate\Pagination\LengthAwarePaginator(
+                    $pagedItems,
+                    $combinedCredits->count(),
+                    $perPage,
+                    $currentPage,
+                    ['path' => request()->url(), 'query' => request()->query()]
+                );
             } else {
-                // Log non-success status
                 Log::warning('TMDB Actor API returned non-success status', [
                     'actor_id' => $id,
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
             }
-        } catch (Exception $e) {
-            // Log any unexpected error
+        } catch (\Exception $e) {
             Log::error('Unexpected error fetching actor details', [
                 'actor_id' => $id,
                 'message' => $e->getMessage(),
             ]);
         }
 
-        // If actor is empty, return 404 page or fallback
         if (empty($actor)) {
             abort(404, 'Actor not found or failed to load.');
         }
 
-        // ✅ Return the actor-details view
-        return view('detailsactor', compact('actor'));
+        // ✅ Return the actor-details view with paginated credits
+        return view('detailsactor', [
+            'actor' => $actor,
+            'credits' => $paginatedCredits,
+        ]);
+    }
+
+
+    /**
+     * Display the specified Genre resource.
+     */
+    public function showGenre(string $id): View|Factory
+    {
+        $apiKey = config('services.tmdb.api_key');
+        $baseUrl = config('services.tmdb.base_url');
+
+        $movies = [];
+        $genreName = 'Genre'; // default fallback
+        $page = request()->get('page', 1); // current page from query params
+
+        try {
+            // ✅ Fetch movies by genre with pagination
+            $response = Http::timeout(5)->get("$baseUrl/discover/movie", [
+                'api_key' => $apiKey,
+                'with_genres' => $id,
+                'language' => 'en-US',
+                'page' => $page,
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                // TMDB returns: results, total_pages, total_results
+                $movies = new LengthAwarePaginator(
+                    $data['results'] ?? [],
+                    $data['total_results'] ?? 0,
+                    20, // TMDB default page size
+                    $page,
+                    ['path' => request()->url(), 'query' => request()->query()]
+                );
+            } else {
+                Log::warning('TMDB Genre API returned non-success status', [
+                    'genre_id' => $id,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
+
+            // ✅ Fetch genres list to get the genre name
+            $genresResponse = Http::timeout(5)->get("$baseUrl/genre/movie/list", [
+                'api_key' => $apiKey,
+                'language' => 'en-US',
+            ]);
+
+            if ($genresResponse->successful()) {
+                $genresData = $genresResponse->json();
+                $genre = collect($genresData['genres'] ?? [])->firstWhere('id', (int)$id);
+                if ($genre) {
+                    $genreName = $genre['name'];
+                }
+            }
+
+        } catch (Exception $e) {
+            Log::error('Unexpected error fetching movies or genre name', [
+                'genre_id' => $id,
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        if (empty($movies)) {
+            abort(404, 'Movies not found for this genre.');
+        }
+
+        // ✅ Return genre-movies view with movies and genre name
+        return view('genremovies', compact('movies', 'id', 'genreName'));
     }
 
     /**

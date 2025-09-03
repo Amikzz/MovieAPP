@@ -104,13 +104,9 @@
     <div class="max-w-7xl mx-auto px-8 py-8 mt-12">
         <h2 class="text-2xl font-semibold mb-6">Filmography</h2>
 
-        @php
-            $combinedCredits = $actor['combined_credits']['cast'] ?? [];
-        @endphp
-
-        @if(!empty($combinedCredits))
+        @if($credits->count() > 0)
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                @foreach($combinedCredits as $credit)
+                @foreach($credits as $credit)
                     <div class="bg-white dark:bg-black/90 rounded-xl shadow overflow-hidden hover:scale-105 transition">
                         <img src="https://image.tmdb.org/t/p/w300{{ $credit['poster_path'] ?? '' }}"
                              alt="{{ $credit['title'] ?? $credit['name'] }}"
@@ -128,6 +124,11 @@
                         </div>
                     </div>
                 @endforeach
+            </div>
+
+            <!-- Pagination links -->
+            <div class="mt-6">
+                {{ $credits->links('pagination::tailwind') }}
             </div>
         @else
             <p class="text-gray-600 dark:text-gray-400">No filmography available.</p>

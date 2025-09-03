@@ -761,10 +761,12 @@
                     style="scroll-behavior: smooth;"
                 >
                     @foreach($popularGenres as $genre)
-                        <div
-                            class="flex-shrink-0 w-40 md:w-48 relative group rounded-lg shadow-lg hover:scale-105 transform transition duration-300 bg-gradient-to-r from-gray-700 to-gray-900 text-white flex items-center justify-center h-24 md:h-32 cursor-pointer">
-                            <span class="text-lg md:text-xl font-semibold">{{ $genre['name'] }}</span>
-                        </div>
+                        <a href="{{ route('genre.show', ['id' => $genre['id']]) }}">
+                            <div
+                                class="flex-shrink-0 w-40 md:w-48 relative group rounded-lg shadow-lg hover:scale-105 transform transition duration-300 bg-gradient-to-r from-gray-700 to-gray-900 text-white flex items-center justify-center h-24 md:h-32 cursor-pointer">
+                                <span class="text-lg md:text-xl font-semibold">{{ $genre['name'] }}</span>
+                            </div>
+                        </a>
                     @endforeach
                 </div>
 

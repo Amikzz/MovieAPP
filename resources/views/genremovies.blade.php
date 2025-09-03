@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ $genreName ?? 'Genre Movies' }} - MovieApp</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'media' }
+    </script>
+
+    <!-- Heroicons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet"/>
+
+    <style>
+        body {
+            font-family: 'instrument-sans', sans-serif;
+        }
+
+        .loader {
+            border: 4px solid #ddd;
+            border-top: 4px solid #e50914;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen
+             bg-gradient-to-br from-white via-gray-100 to-gray-200 text-black
+             dark:bg-gradient-to-br dark:from-[#0f0f0f] dark:via-[#1a1a1a] dark:to-[#0a0a0a] dark:text-white">
+
+<!-- Loader -->
+<div id="loader" class="fixed inset-0 flex items-center justify-center
+    bg-white dark:bg-black z-[100] transition-opacity duration-500">
+    <div class="loader"></div>
+</div>
+
+<main id="pageContent" class="w-full relative opacity-0 translate-y-4 transition-all duration-700">
+
+    <!-- Back Button -->
+    <div class="max-w-7xl mx-auto px-8 py-6">
+        <button onclick="window.history.back()"
+                class="px-4 py-2 bg-[#e50914] text-white rounded-lg shadow hover:bg-[#b20710] transition">
+            ← Back
+        </button>
+    </div>
+
+    <!-- Genre Header -->
+    <div class="max-w-7xl mx-auto px-8 mt-6">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">
+            {{ $genreName ?? 'Genre' }} Movies
+        </h1>
+        <p class="text-gray-700 dark:text-gray-300">
+            Browse movies from the <span class="text-[#e50914] font-semibold">{{ $genreName ?? 'Selected' }}</span> genre.
+        </p>
+    </div>
+
+    <!-- Movies Grid -->
+    <div class="max-w-7xl mx-auto px-8 py-8 mt-8">
+        @if($movies->count() > 0)
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                @foreach($movies as $movie)
+                    @php
+                        $type = 'movie';
+                        $itemId = $movie['id'];
+                        $isFavorited = auth()->check()
+                            ? auth()->user()->favorites()->where('type', $type)->where('item_id', $itemId)->exists()
+                            : false;
+                    @endphp
+
+                        <!-- Movie Card -->
+                    <div class="relative group rounded-xl overflow-hidden shadow-lg hover:scale-105 transform transition duration-300">
+                        <!-- Poster -->
+                        <img src="https://image.tmdb.org/t/p/w500{{ $movie['poster_path'] ?? '' }}"
+                             alt="{{ $movie['title'] ?? 'Untitled' }}"
+                             class="w-full h-72 object-cover rounded-xl">
+
+                        <!-- Hover Overlay -->
+                        <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3 rounded-xl">
+                            <h3 class="text-md md:text-lg font-semibold truncate text-white">
+                                {{ $movie['title'] ?? 'Untitled' }}
+                            </h3>
+                            <p class="text-sm text-white mb-2">
+                                ⭐ {{ $movie['vote_average'] ?? 'N/A' }} / 10
+                            </p>
+
+                            <div class="flex gap-2">
+                                <!-- View Button -->
+                                <a href="{{ route('movies.show', ['id' => $movie['id']]) }}"
+                                   class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow hover:scale-105 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                         stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M15 12H9m6 0l-3-3m3 3l-3 3"/>
+                                    </svg>
+                                    <span>View</span>
+                                </a>
+
+                                <!-- Favorite Button -->
+                                @auth
+                                    <button
+                                        x-data="{ favorited: @json($isFavorited), loading: false }"
+                                        x-on:click="
+                                        loading = true;
+                                        fetch(`/favorites/toggle/{{ $type }}/{{ $itemId }}`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                'Accept': 'application/json',
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({})
+                                        })
+                                        .then(res => res.json())
+                                        .then(data => favorited = data.favorited)
+                                        .catch(err => { console.error(err); alert('Failed to add/remove favorite'); })
+                                        .finally(() => loading = false)
+                                    "
+                                        class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r from-[#e50914] to-[#ff3d5f] text-white font-semibold shadow hover:scale-105 transition"
+                                    >
+                                        <svg x-show="!favorited" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                             fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M4 8c0-3.2 4-6 8-6s8 2.8 8 6c0 5-8 11-8 11S4 13 4 8z"/>
+                                        </svg>
+                                        <svg x-show="favorited" xmlns="http://www.w3.org/2000/svg"
+                                             class="h-5 w-5 text-white" fill="none" stroke="currentColor"
+                                             stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                        <span x-text="favorited ? 'Added' : 'Add'"></span>
+                                    </button>
+                                @endauth
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-8 flex justify-center">
+                {{ $movies->links('pagination::tailwind') }}
+            </div>
+        @else
+            <p class="text-gray-600 dark:text-gray-400">No movies available in this genre.</p>
+        @endif
+    </div>
+</main>
+
+<script>
+    window.addEventListener("load", () => {
+        const loader = document.getElementById("loader");
+        const content = document.getElementById("pageContent");
+        loader.classList.add("opacity-0");
+        setTimeout(() => {
+            loader.style.display = "none";
+            content.classList.remove("opacity-0", "translate-y-4");
+            feather.replace();
+        }, 500);
+    });
+</script>
+
+<!-- Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+</body>
+</html>
