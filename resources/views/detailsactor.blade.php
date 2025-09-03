@@ -65,18 +65,18 @@
         <!-- Centered Navigation Links -->
         <nav class="hidden md:flex gap-8 mx-auto">
             <a href="{{ url('/dashboard') }}"
-               class="font-medium transition
-    {{ request()->is('dashboard') ? 'text-[#e50914]' : 'text-black dark:text-white' }}">
+               class="font-bold transition
+        {{ request()->is('dashboard') ? 'text-[#e50914]' : 'text-black dark:text-white' }}">
                 Home
             </a>
 
             <a href="{{ url('/movies') }}"
-               class="{{ request()->is('movies*') ? 'text-[#e50914]' : 'text-black dark:text-white' }} font-medium hover:text-[#e50914] transition">
+               class="{{ request()->is('movies*') ? 'text-[#e50914]' : 'text-black dark:text-white' }} font-bold hover:text-[#e50914] transition">
                 Movies
             </a>
 
             <a href="{{ url('/tv-shows') }}"
-               class="{{ request()->is('tv-shows*') ? 'text-[#e50914]' : 'text-black dark:text-white' }} font-medium hover:text-[#e50914] transition">
+               class="{{ request()->is('tv-shows*') ? 'text-[#e50914]' : 'text-black dark:text-white' }} font-bold hover:text-[#e50914] transition">
                 TV Shows
             </a>
 
@@ -85,7 +85,7 @@
                 <a href="#"
                    @mouseenter="open = true"
                    @mouseleave="open = false"
-                   class="text-black dark:text-white font-medium hover:text-[#e50914] transition cursor-pointer">
+                   class="text-black dark:text-white font-bold hover:text-[#e50914] transition cursor-pointer">
                     Genres
                 </a>
                 <div x-show="open"
@@ -102,7 +102,7 @@
                 >
                     @foreach($popularGenres as $genre)
                         <a href="{{ url('/genre/'.$genre['id']) }}"
-                           class="block px-3 py-2 rounded hover:bg-[#e50914] hover:text-white text-gray-700 dark:text-gray-200 transition font-medium whitespace-nowrap min-w-max">
+                           class="block px-3 py-2 rounded hover:bg-[#e50914] hover:text-white text-gray-700 dark:text-gray-200 transition font-bold whitespace-nowrap min-w-max">
                             {{ $genre['name'] }}
                         </a>
                     @endforeach
@@ -110,17 +110,17 @@
             </div>
 
             <a href="{{ url('/actors') }}"
-               class="{{ request()->is('actors*') || request()->is('actor/*') ? 'text-[#e50914]' : 'text-black dark:text-white' }} font-medium hover:text-[#e50914] transition">
+               class="{{ request()->is('actors*') || request()->is('actor/*') ? 'text-[#e50914]' : 'text-black dark:text-white' }} font-bold hover:text-[#e50914] transition">
                 Actors
             </a>
 
             <a href="{{ url('/favorites') }}"
-               class="{{ request()->is('favorites*') ? 'text-[#e50914]' : 'text-black dark:text-white' }} font-medium hover:text-[#e50914] transition">
+               class="{{ request()->is('favorites*') ? 'text-[#e50914]' : 'text-black dark:text-white' }} font-bold hover:text-[#e50914] transition">
                 Favorites
             </a>
         </nav>
 
-        @auth
+    @auth
             <div class="relative" x-data="{ open: false }">
                 <button @click="open = !open"
                         class="flex items-center gap-2 px-4 py-2 bg-[#e50914] text-white rounded-full shadow-md hover:bg-[#b20710] transition transform hover:scale-105 focus:outline-none">
@@ -228,6 +228,10 @@
                  class="w-56 md:w-52 rounded-3xl shadow-xl object-cover transition-transform duration-300 hover:scale-105">
         </div>
     </div>
+
+    <h2 class="text-3xl md:text-4xl font-extrabold text-red-600 mt-12 text-center">
+        Movies & Credits
+    </h2>
 
     <!-- Movies Grid -->
     <div class="max-w-7xl mx-auto px-8 py-8 mt-8">
