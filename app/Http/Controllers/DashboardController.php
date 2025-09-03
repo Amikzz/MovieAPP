@@ -443,12 +443,35 @@ class DashboardController extends Controller
             ]);
         }
 
+        // Cache popular genres for 1 day
+        $popularGenres = Cache::remember('popular_genres', 86400, function () use ($apiKey, $baseUrl) {
+            try {
+                $response = Http::timeout(5)->get("$baseUrl/genre/movie/list", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                ]);
+
+                if ($response->successful()) {
+                    return $response->json()['genres'] ?? [];
+                }
+
+                Log::warning('TMDB Genre API returned non-success status', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return [];
+            } catch (Exception $e) {
+                Log::error('Error fetching genres', ['message' => $e->getMessage()]);
+                return [];
+            }
+        });
+
         if (empty($movies)) {
             abort(404, 'Movies not found for this genre.');
         }
 
         // ✅ Return genre-movies view with movies and genre name
-        return view('genremovies', compact('movies', 'id', 'genreName'));
+        return view('genremovies', compact('movies', 'id', 'genreName', 'popularGenres'));
     }
 
     /**
