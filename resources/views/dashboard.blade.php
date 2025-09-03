@@ -42,25 +42,26 @@
         <!-- Centered Navigation Links -->
         <nav class="hidden md:flex gap-8 mx-auto">
             <a href="{{ url('/dashboard') }}"
-               class="font-medium transition
-                {{ request()->is('dashboard') ? 'text-[#e50914]' : 'text-black dark:text-white' }}">
+               class="transition font-bold
+        {{ request()->is('dashboard') ? 'text-[#e50914]' : 'text-black dark:text-white' }}">
                 Home
             </a>
 
             <a href=""
-               class="text-black dark:text-white font-medium hover:text-[#e50914] transition">
+               class="font-bold text-black dark:text-white hover:text-[#e50914] transition">
                 Movies
             </a>
             <a href=""
-               class="text-black dark:text-white font-medium hover:text-[#e50914] transition">
+               class="font-bold text-black dark:text-white hover:text-[#e50914] transition">
                 TV Shows
             </a>
+
             <!-- Navbar Genres Dropdown -->
             <div x-data="{ open: false }" class="relative">
                 <a href="#"
                    @mouseenter="open = true"
                    @mouseleave="open = false"
-                   class="text-black dark:text-white font-medium hover:text-[#e50914] transition cursor-pointer">
+                   class="font-bold text-black dark:text-white hover:text-[#e50914] transition cursor-pointer">
                     Genres
                 </a>
 
@@ -79,24 +80,24 @@
                 >
                     @foreach($popularGenres as $genre)
                         <a href="#"
-                           class="block px-3 py-2 rounded hover:bg-[#e50914] hover:text-white text-gray-700 dark:text-gray-200 transition font-medium whitespace-nowrap min-w-max">
+                           class="block px-3 py-2 rounded hover:bg-[#e50914] hover:text-white text-gray-700 dark:text-gray-200 transition font-bold whitespace-nowrap min-w-max">
                             {{ $genre['name'] }}
                         </a>
                     @endforeach
                 </div>
-
             </div>
+
             <a href=""
-               class="text-black dark:text-white font-medium hover:text-[#e50914] transition">
+               class="font-bold text-black dark:text-white hover:text-[#e50914] transition">
                 Actors
             </a>
             <a href=""
-               class="text-black dark:text-white font-medium hover:text-[#e50914] transition">
+               class="font-bold text-black dark:text-white hover:text-[#e50914] transition">
                 Favorites
             </a>
         </nav>
 
-        @auth
+    @auth
             <!-- Profile Dropdown -->
             <div class="relative" x-data="{ open: false }">
                 <!-- Button -->
