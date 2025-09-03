@@ -193,15 +193,33 @@
             <h2 class="text-2xl font-semibold mb-4">Seasons</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 @foreach($tvShow['seasons'] as $season)
-                    <div
-                        class="bg-white dark:bg-black/90 rounded-xl p-4 shadow border border-gray-200 dark:border-gray-800 hover:scale-105 transition">
-                        <img src="https://image.tmdb.org/t/p/w300{{ $season['poster_path'] ?? '' }}"
-                             alt="{{ $season['name'] }}"
-                             class="rounded-lg mb-2 w-full h-48 object-cover">
-                        <h3 class="font-semibold text-gray-800 dark:text-gray-200">{{ $season['name'] }}</h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $season['air_date'] ?? 'N/A' }}</p>
-                        <p class="text-gray-900 dark:text-gray-200 text-sm mt-1">{{ $season['episode_count'] ?? 0 }}
-                            Episodes</p>
+                    <div class="relative group rounded-xl overflow-hidden shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
+                        <!-- Poster or Placeholder -->
+                        @if(!empty($season['poster_path']))
+                            <img src="https://image.tmdb.org/t/p/w500{{ $season['poster_path'] }}"
+                                 alt="{{ $season['name'] }}"
+                                 class="w-full h-72 object-cover rounded-xl">
+                        @else
+                            <div class="w-full h-72 bg-gray-200 dark:bg-gray-700 flex items-center justify-center rounded-xl">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v4a2 2 0 002 2h3l3 3 4-4 5 5V7a2 2 0 00-2-2H5a2 2 0 00-2 2z" />
+                                </svg>
+                                <span class="text-gray-500 mt-2 text-sm">No Image</span>
+                            </div>
+                        @endif
+
+                        <!-- Hover Overlay -->
+                        <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3 rounded-xl">
+                            <h3 class="text-md md:text-lg font-semibold truncate text-white">
+                                {{ $season['name'] }}
+                            </h3>
+                            <p class="text-sm text-white mb-1">
+                                Air Date: {{ $season['air_date'] ?? 'N/A' }}
+                            </p>
+                            <p class="text-sm text-white">
+                                Episodes: {{ $season['episode_count'] ?? 0 }}
+                            </p>
+                        </div>
                     </div>
                 @endforeach
             </div>
