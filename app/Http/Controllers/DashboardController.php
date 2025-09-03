@@ -7,6 +7,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -15,155 +16,156 @@ class DashboardController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View|Factory
+    public function index(): View
     {
+        // TMDB configuration
         $apiKey = config('services.tmdb.api_key');
         $baseUrl = config('services.tmdb.base_url');
         $imageUrl = config('services.tmdb.image_url');
 
-        $popularMovies = [];
-        $popularTvShows = [];
+        // Cache popular movies for 30 minutes
+        $popularMovies = Cache::remember('popular_movies', 1800, function () use ($apiKey, $baseUrl) {
+            try {
+                $response = Http::timeout(5)->get("$baseUrl/movie/popular", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                    'page' => 1,
+                ]);
+
+                if ($response->successful()) {
+                    return $response->json()['results'] ?? [];
+                }
+
+                Log::warning('TMDB Movies API returned non-success status', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return [];
+            } catch (Exception $e) {
+                Log::error('Error fetching popular movies', ['message' => $e->getMessage()]);
+                return [];
+            }
+        });
+
+        // Cache popular TV shows for 30 minutes
+        $popularTvShows = Cache::remember('popular_tv', 1800, function () use ($apiKey, $baseUrl) {
+            try {
+                $response = Http::timeout(5)->get("$baseUrl/tv/popular", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                    'page' => 1,
+                ]);
+
+                if ($response->successful()) {
+                    return $response->json()['results'] ?? [];
+                }
+
+                Log::warning('TMDB TV API returned non-success status', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return [];
+            } catch (Exception $e) {
+                Log::error('Error fetching popular TV shows', ['message' => $e->getMessage()]);
+                return [];
+            }
+        });
+
+        // Cache popular genres for 1 day
+        $popularGenres = Cache::remember('popular_genres', 86400, function () use ($apiKey, $baseUrl) {
+            try {
+                $response = Http::timeout(5)->get("$baseUrl/genre/movie/list", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                ]);
+
+                if ($response->successful()) {
+                    return $response->json()['genres'] ?? [];
+                }
+
+                Log::warning('TMDB Genre API returned non-success status', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return [];
+            } catch (Exception $e) {
+                Log::error('Error fetching genres', ['message' => $e->getMessage()]);
+                return [];
+            }
+        });
+
+        // Cache popular actors for 1 hour
+        $popularActors = Cache::remember('popular_actors', 3600, function () use ($apiKey, $baseUrl) {
+            try {
+                $response = Http::timeout(5)->get("$baseUrl/person/popular", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                    'page' => 1,
+                ]);
+
+                if ($response->successful()) {
+                    return $response->json()['results'] ?? [];
+                }
+
+                Log::warning('TMDB Actors API returned non-success status', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return [];
+            } catch (Exception $e) {
+                Log::error('Error fetching popular actors', ['message' => $e->getMessage()]);
+                return [];
+            }
+        });
+
+        // Fetch user recommendations only if logged in
         $recommendedMovies = [];
         $recommendedTv = [];
-        $popularGenres = [];
-        $popularActors = [];
-
-        try {
-            // Fetch popular movies
-            $moviesResponse = Http::timeout(5)
-                ->get("$baseUrl/movie/popular", [
-                    'api_key' => $apiKey,
-                    'language' => 'en-US',
-                    'page' => 1,
-                ]);
-
-            if ($moviesResponse->successful()) {
-                $popularMovies = $moviesResponse->json()['results'] ?? [];
-            } else {
-                Log::warning('TMDB Movies API returned non-success status', [
-                    'status' => $moviesResponse->status(),
-                    'body' => $moviesResponse->body(),
-                ]);
-            }
-        } catch (Exception $e) {
-            Log::error('Unexpected error fetching movies', ['message' => $e->getMessage()]);
-        }
-
-        try {
-            // Fetch popular TV shows
-            $tvResponse = Http::timeout(5)
-                ->get("$baseUrl/tv/popular", [
-                    'api_key' => $apiKey,
-                    'language' => 'en-US',
-                    'page' => 1,
-                ]);
-
-            if ($tvResponse->successful()) {
-                $popularTvShows = $tvResponse->json()['results'] ?? [];
-            } else {
-                Log::warning('TMDB TV API returned non-success status', [
-                    'status' => $tvResponse->status(),
-                    'body' => $tvResponse->body(),
-                ]);
-            }
-        } catch (Exception $e) {
-            Log::error('Unexpected error fetching TV shows', ['message' => $e->getMessage()]);
-        }
 
         if (auth()->check()) {
             $favorites = auth()->user()->favorites()->select('type', 'item_id')->get();
 
             foreach ($favorites as $favorite) {
-                $type = $favorite->type; // "movie" or "tv"
+                $type = $favorite->type;
                 $itemId = $favorite->item_id;
 
-                try {
-                    $recResponse = Http::timeout(5)
-                        ->get("$baseUrl/$type/$itemId/recommendations", [
+                // Cache each favorite's recommendations for 30 minutes
+                $recs = Cache::remember("recommendations_{$type}_{$itemId}", 1800, function () use ($apiKey, $baseUrl, $type, $itemId) {
+                    try {
+                        $response = Http::timeout(5)->get("$baseUrl/$type/$itemId/recommendations", [
                             'api_key' => $apiKey,
                             'language' => 'en-US',
                             'page' => 1,
                         ]);
 
-                    if ($recResponse->successful()) {
-                        $recs = $recResponse->json()['results'] ?? [];
-
-                        foreach ($recs as $rec) {
-                            // Add media_type to every recommendation
-                            $rec['media_type'] = $type;
-
-                            if ($type === 'movie') {
-                                // Avoid duplicates in movies
-                                $exists = collect($recommendedMovies)
-                                    ->contains(fn($r) => $r['id'] === $rec['id']);
-                                if (!$exists) {
-                                    $recommendedMovies[] = $rec;
-                                }
-                            } elseif ($type === 'tv') {
-                                // Avoid duplicates in tv
-                                $exists = collect($recommendedTv)
-                                    ->contains(fn($r) => $r['id'] === $rec['id']);
-                                if (!$exists) {
-                                    $recommendedTv[] = $rec;
-                                }
-                            }
+                        if ($response->successful()) {
+                            return $response->json()['results'] ?? [];
                         }
-                    } else {
-                        Log::warning("TMDB API non-success for $type $itemId", [
-                            'status' => $recResponse->status(),
-                            'body' => $recResponse->body(),
+
+                        Log::warning("TMDB recommendations API returned non-success for $type $itemId", [
+                            'status' => $response->status(),
+                            'body' => $response->body(),
                         ]);
+                        return [];
+                    } catch (Exception $e) {
+                        Log::error("Error fetching recommendations for $type $itemId", ['message' => $e->getMessage()]);
+                        return [];
                     }
-                } catch (Exception $e) {
-                    Log::error("Error fetching recommendations for $type $itemId", [
-                        'message' => $e->getMessage(),
-                    ]);
+                });
+
+                foreach ($recs as $rec) {
+                    $rec['media_type'] = $type;
+
+                    if ($type === 'movie' && !collect($recommendedMovies)->contains(fn($r) => $r['id'] === $rec['id'])) {
+                        $recommendedMovies[] = $rec;
+                    } elseif ($type === 'tv' && !collect($recommendedTv)->contains(fn($r) => $r['id'] === $rec['id'])) {
+                        $recommendedTv[] = $rec;
+                    }
                 }
             }
 
-            // Shuffle and trim to 50 each
             $recommendedMovies = collect($recommendedMovies)->shuffle()->take(50)->values()->toArray();
             $recommendedTv = collect($recommendedTv)->shuffle()->take(50)->values()->toArray();
-        }
-        try {
-            // Fetch popular genres
-            $genreResponse = Http::timeout(5)
-                ->get("$baseUrl/genre/movie/list", [
-                    'api_key' => $apiKey,
-                    'language' => 'en-US',
-                ]);
-
-            if ($genreResponse->successful()) {
-                $popularGenres = $genreResponse->json()['genres'] ?? [];
-            } else {
-                Log::warning('TMDB Genre API returned non-success status', [
-                    'status' => $genreResponse->status(),
-                    'body' => $genreResponse->body(),
-                ]);
-            }
-        } catch (Exception $e) {
-            Log::error('Unexpected error fetching genres', ['message' => $e->getMessage()]);
-        }
-
-        try {
-            // Fetch popular actors
-            $actorsResponse = Http::timeout(5)
-                ->get("$baseUrl/person/popular", [
-                    'api_key' => $apiKey,
-                    'language' => 'en-US',
-                    'page' => 1,
-                ]);
-
-            if ($actorsResponse->successful()) {
-                $popularActors = $actorsResponse->json()['results'] ?? [];
-            } else {
-                Log::warning('TMDB Actors API returned non-success status', [
-                    'status' => $actorsResponse->status(),
-                    'body' => $actorsResponse->body(),
-                ]);
-            }
-        } catch (Exception $e) {
-            Log::error('Unexpected error fetching popular actors', ['message' => $e->getMessage()]);
         }
 
         return view('dashboard', [
@@ -177,7 +179,7 @@ class DashboardController extends Controller
         ]);
     }
 
-    /**
+/**
      * Show the form for creating a new resource.
      */
     public function create(): void
