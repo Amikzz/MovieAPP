@@ -288,6 +288,55 @@ class DashboardController extends Controller
         return view('detailstv', compact('tvShow'));
     }
 
+
+    /**
+     * Display the specified Actor resource.
+     */
+    public function showActor(string $id): View|Factory
+    {
+        // ✅ TMDB configuration
+        $apiKey = config('services.tmdb.api_key');
+        $baseUrl = config('services.tmdb.base_url');
+
+        // Initialize empty actor array in case of failure
+        $actor = [];
+
+        try {
+            // ✅ Fetch Actor Details with credits & images
+            $response = Http::timeout(5) // 5 seconds timeout
+            ->get("$baseUrl/person/$id", [
+                'api_key' => $apiKey,
+                'append_to_response' => 'combined_credits,images',
+                'language' => 'en-US',
+            ]);
+
+            if ($response->successful()) {
+                $actor = $response->json();
+            } else {
+                // Log non-success status
+                Log::warning('TMDB Actor API returned non-success status', [
+                    'actor_id' => $id,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
+        } catch (Exception $e) {
+            // Log any unexpected error
+            Log::error('Unexpected error fetching actor details', [
+                'actor_id' => $id,
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        // If actor is empty, return 404 page or fallback
+        if (empty($actor)) {
+            abort(404, 'Actor not found or failed to load.');
+        }
+
+        // ✅ Return the actor-details view
+        return view('detailsactor', compact('actor'));
+    }
+
     /**
      * Show the form for editing the specified resource.
      */

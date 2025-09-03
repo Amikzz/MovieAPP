@@ -692,20 +692,20 @@
                     style="scroll-behavior: smooth;"
                 >
                     @foreach($popularActors as $actor)
-                        <div
-                            class="flex-shrink-0 w-48 md:w-56 relative group rounded-lg shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
-                            <a href="">
-                                <img src="https://image.tmdb.org/t/p/w500{{ $actor['profile_path'] ?? '' }}"
-                                     alt="{{ $actor['name'] }}"
-                                     class="w-full h-72 md:h-80 object-cover rounded-lg">
-                            </a>
+                        <a href="{{ route('actor.show', ['id' => $actor['id']]) }}"
+                           class="flex-shrink-0 w-48 md:w-56 relative group rounded-lg shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer">
+
+                            <img src="https://image.tmdb.org/t/p/w500{{ $actor['profile_path'] ?? '' }}"
+                                 alt="{{ $actor['name'] }}"
+                                 class="w-full h-72 md:h-80 object-cover rounded-lg">
 
                             <!-- Overlay with Name -->
                             <div
                                 class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3 rounded-lg">
                                 <h2 class="text-md md:text-lg font-semibold truncate text-white">{{ $actor['name'] }}</h2>
                             </div>
-                        </div>
+                        </a>
+
                     @endforeach
                 </div>
 
