@@ -67,7 +67,7 @@
         <nav class="hidden md:flex gap-8 mx-auto">
             <a href="{{ url('/dashboard') }}"
                class="font-bold transition
-        {{ request()->is('dashboard') ? 'text-[#e50914]' : 'text-black dark:text-white' }}">
+                {{ request()->is('dashboard') ? 'text-[#e50914]' : 'text-black dark:text-white' }}">
                 Home
             </a>
 

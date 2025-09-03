@@ -101,7 +101,7 @@
                     @foreach($popularGenres as $genre)
                         <a href="{{ url('/genre/'.$genre['id']) }}"
                            class="block px-3 py-2 rounded hover:bg-[#e50914] hover:text-white transition font-bold whitespace-nowrap min-w-max
-               {{ request()->is('genre/'.$genre['id'].'*') ? 'text-[#e50914]' : 'text-gray-700 dark:text-gray-200' }}">
+                            {{ request()->is('genre/'.$genre['id'].'*') ? 'text-[#e50914]' : 'text-gray-700 dark:text-gray-200' }}">
                             {{ $genre['name'] }}
                         </a>
                     @endforeach

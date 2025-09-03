@@ -79,7 +79,7 @@
                      class="absolute left-0 mt-2 min-w-[18rem] max-w-[24rem] bg-white dark:bg-gray-800 shadow-lg rounded-lg z-50 p-4 grid grid-cols-2 gap-2 border border-gray-200 dark:border-gray-700"
                 >
                     @foreach($popularGenres as $genre)
-                        <a href="#"
+                        <a href="{{ route('genre.show', ['id' => $genre['id']]) }}"
                            class="block px-3 py-2 rounded hover:bg-[#e50914] hover:text-white text-gray-700 dark:text-gray-200 transition font-bold whitespace-nowrap min-w-max">
                             {{ $genre['name'] }}
                         </a>
