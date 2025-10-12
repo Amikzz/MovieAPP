@@ -548,6 +548,79 @@ class DashboardController extends Controller
     }
 
     /**
+     * Display all the TV shows with search and pagination.
+     */
+    public function showAllTvShows(): View|Factory
+    {
+        $apiKey = config('services.tmdb.api_key');
+        $baseUrl = config('services.tmdb.base_url');
+
+        $tvshows = [];
+        $page = request()->get('page', 1);
+        $search = trim(request()->get('search', ''));
+
+        try {
+            if (!empty($search)) {
+                // ✅ Search TV shows by keyword
+                $response = Http::timeout(5)->get("$baseUrl/search/tv", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                    'query' => $search,
+                    'page' => $page,
+                ]);
+            } else {
+                // ✅ Get popular TV shows by default
+                $response = Http::timeout(5)->get("$baseUrl/tv/popular", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                    'page' => $page,
+                ]);
+            }
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                $tvshows = new LengthAwarePaginator(
+                    $data['results'] ?? [],
+                    $data['total_results'] ?? 0,
+                    20,
+                    $page,
+                    ['path' => request()->url(), 'query' => request()->query()]
+                );
+            } else {
+                Log::warning('TMDB API returned non-success status for all TV shows', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
+
+        } catch (Exception $e) {
+            Log::error('Error fetching TV shows', ['message' => $e->getMessage()]);
+        }
+
+        // ✅ Cache TV show genres for the Navbar dropdown
+        $popularGenres = Cache::remember('popular_tv_genres', 86400, function () use ($apiKey, $baseUrl) {
+            try {
+                $response = Http::timeout(5)->get("$baseUrl/genre/tv/list", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                ]);
+
+                if ($response->successful()) {
+                    return $response->json()['genres'] ?? [];
+                }
+
+                return [];
+            } catch (Exception $e) {
+                Log::error('Error fetching TV show genres', ['message' => $e->getMessage()]);
+                return [];
+            }
+        });
+
+        return view('allTvShows', compact('tvshows', 'popularGenres', 'search'));
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id): void

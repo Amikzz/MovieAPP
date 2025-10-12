@@ -33,6 +33,9 @@ Route::middleware(['auth'])->group(function () {
 
     //All the movies
     Route::get('/movies', [DashboardController::class, 'showAllMovies'])->name('movies.index');
+
+    //All the TV shows
+    Route::get('/tv-shows', [DashboardController::class, 'showAllTvShows'])->name('tv.index');
 });
 
 Route::middleware(['auth', 'web'])->group(function () {

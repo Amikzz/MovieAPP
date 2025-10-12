@@ -52,7 +52,7 @@
                {{ request()->is('movies') ? 'text-[#e50914]' : 'text-black dark:text-white' }}">
                 Movies
             </a>
-            <a href=""
+            <a href="{{ url('/tv-shows') }}"
                class="font-bold text-black dark:text-white hover:text-[#e50914] transition">
                 TV Shows
             </a>
