@@ -621,6 +621,85 @@ class DashboardController extends Controller
     }
 
     /**
+     * Display all the Actors with search and pagination.
+     */
+    public function showAllActors(): View|Factory
+    {
+        $apiKey = config('services.tmdb.api_key');
+        $baseUrl = config('services.tmdb.base_url');
+
+        $page = request()->get('page', 1);
+        $search = trim(request()->get('search', ''));
+
+        $actors = collect(); // default empty collection
+
+        try {
+            if ($search) {
+                // 🔍 Search for actors
+                $response = Http::timeout(5)->get("$baseUrl/search/person", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                    'query' => $search,
+                    'page' => $page,
+                ]);
+            } else {
+                // 🌟 Get popular actors
+                $response = Http::timeout(5)->get("$baseUrl/person/popular", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                    'page' => $page,
+                ]);
+            }
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                // 🧩 Normalize the data so Blade can safely access it
+                $results = collect($data['results'] ?? [])->map(function ($actor) {
+                    return [
+                        'id' => $actor['id'] ?? null,
+                        'name' => $actor['name'] ?? 'Unknown Actor',
+                        'profile_path' => $actor['profile_path'] ?? null,
+                        'known_for' => $actor['known_for_department'] ?? '',
+                    ];
+                });
+
+                // 📜 Pagination
+                $actors = new LengthAwarePaginator(
+                    $results,
+                    $data['total_results'] ?? 0,
+                    20,
+                    $page,
+                    ['path' => request()->url(), 'query' => request()->query()]
+                );
+            } else {
+                Log::warning('TMDB returned error for actors', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
+        } catch (Exception $e) {
+            Log::error('Error fetching actors', ['message' => $e->getMessage()]);
+        }
+
+        // ✅ Get genres for the navbar
+        $popularGenres = Cache::remember('popular_genres', 86400, function () use ($apiKey, $baseUrl) {
+            try {
+                $response = Http::timeout(5)->get("$baseUrl/genre/movie/list", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                ]);
+                return $response->successful() ? ($response->json()['genres'] ?? []) : [];
+            } catch (Exception $e) {
+                Log::error('Error fetching genres', ['message' => $e->getMessage()]);
+                return [];
+            }
+        });
+
+        return view('actors', compact('actors', 'popularGenres', 'search'));
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id): void

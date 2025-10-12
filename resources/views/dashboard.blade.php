@@ -88,7 +88,7 @@
                 </div>
             </div>
 
-            <a href=""
+            <a href="{{ url('/actors') }}"
                class="font-bold text-black dark:text-white hover:text-[#e50914] transition">
                 Actors
             </a>

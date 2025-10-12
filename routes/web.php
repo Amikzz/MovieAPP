@@ -36,6 +36,9 @@ Route::middleware(['auth'])->group(function () {
 
     //All the TV shows
     Route::get('/tv-shows', [DashboardController::class, 'showAllTvShows'])->name('tv.index');
+
+    //All the actors
+    Route::get('/actors', [DashboardController::class, 'showAllActors'])->name('actors.index');
 });
 
 Route::middleware(['auth', 'web'])->group(function () {
