@@ -30,6 +30,9 @@ Route::middleware(['auth'])->group(function () {
 
     //Genre Details Route
     Route::get('/genre/{id}', [DashboardController::class, 'showGenre'])->name('genre.show');
+
+    //All the movies
+    Route::get('/movies', [DashboardController::class, 'showAllMovies'])->name('movies.index');
 });
 
 Route::middleware(['auth', 'web'])->group(function () {

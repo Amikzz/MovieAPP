@@ -43,12 +43,13 @@
         <nav class="hidden md:flex gap-8 mx-auto">
             <a href="{{ url('/dashboard') }}"
                class="transition font-bold
-        {{ request()->is('dashboard') ? 'text-[#e50914]' : 'text-black dark:text-white' }}">
+               {{ request()->is('dashboard') ? 'text-[#e50914]' : 'text-black dark:text-white' }}">
                 Home
             </a>
 
-            <a href=""
-               class="font-bold text-black dark:text-white hover:text-[#e50914] transition">
+            <a href="{{ url('/movies') }}"
+               class="transition font-bold
+               {{ request()->is('movies') ? 'text-[#e50914]' : 'text-black dark:text-white' }}">
                 Movies
             </a>
             <a href=""

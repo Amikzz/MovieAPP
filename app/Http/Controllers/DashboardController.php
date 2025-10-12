@@ -475,6 +475,79 @@ class DashboardController extends Controller
     }
 
     /**
+     * Display all the movies with search and pagination.
+     */
+    public function showAllMovies(): View|Factory
+    {
+        $apiKey = config('services.tmdb.api_key');
+        $baseUrl = config('services.tmdb.base_url');
+
+        $movies = [];
+        $page = request()->get('page', 1);
+        $search = trim(request()->get('search', ''));
+
+        try {
+            if (!empty($search)) {
+                // ✅ Search movies by keyword
+                $response = Http::timeout(5)->get("$baseUrl/search/movie", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                    'query' => $search,
+                    'page' => $page,
+                ]);
+            } else {
+                // ✅ Get popular movies by default
+                $response = Http::timeout(5)->get("$baseUrl/movie/popular", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                    'page' => $page,
+                ]);
+            }
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                $movies = new LengthAwarePaginator(
+                    $data['results'] ?? [],
+                    $data['total_results'] ?? 0,
+                    20,
+                    $page,
+                    ['path' => request()->url(), 'query' => request()->query()]
+                );
+            } else {
+                Log::warning('TMDB API returned non-success status for all movies', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
+
+        } catch (Exception $e) {
+            Log::error('Error fetching movies', ['message' => $e->getMessage()]);
+        }
+
+        // ✅ Cache popular genres for the Navbar dropdown
+        $popularGenres = Cache::remember('popular_genres', 86400, static function () use ($apiKey, $baseUrl) {
+            try {
+                $response = Http::timeout(5)->get("$baseUrl/genre/movie/list", [
+                    'api_key' => $apiKey,
+                    'language' => 'en-US',
+                ]);
+
+                if ($response->successful()) {
+                    return $response->json()['genres'] ?? [];
+                }
+
+                return [];
+            } catch (Exception $e) {
+                Log::error('Error fetching genres', ['message' => $e->getMessage()]);
+                return [];
+            }
+        });
+
+        return view('allMovies', compact('movies', 'popularGenres', 'search'));
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id): void
