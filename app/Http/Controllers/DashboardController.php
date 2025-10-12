@@ -7,6 +7,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -618,6 +619,40 @@ class DashboardController extends Controller
         });
 
         return view('allTvShows', compact('tvshows', 'popularGenres', 'search'));
+    }
+
+    /**
+     * Display the user's favorite movies and TV shows.
+     */
+    public function favorites(): Factory|View
+    {
+        $user = Auth::user();
+        $favorites = $user->favorites()->get(); // get all user's favorites
+
+        $tmdbApiKey = env('TMDB_API_KEY');
+        $favoriteItems = [];
+
+        foreach ($favorites as $favorite) {
+            $endpoint = $favorite->type === 'movie'
+                ? "https://api.themoviedb.org/3/movie/{$favorite->item_id}?api_key={$tmdbApiKey}&language=en-US"
+                : "https://api.themoviedb.org/3/tv/{$favorite->item_id}?api_key={$tmdbApiKey}&language=en-US";
+
+            $response = Http::get($endpoint);
+
+            if ($response->successful()) {
+                $item = $response->json();
+                $item['type'] = $favorite->type;
+                $favoriteItems[] = $item;
+            }
+        }
+
+        $popularGenres = Http::get("https://api.themoviedb.org/3/genre/tv/list?api_key={$tmdbApiKey}&language=en-US")
+            ->json()['genres'] ?? [];
+
+        return view('favourites', [
+            'favorites' => $favoriteItems,
+            'popularGenres' => $popularGenres,
+        ]);
     }
 
     /**

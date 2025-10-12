@@ -92,7 +92,7 @@
                class="font-bold text-black dark:text-white hover:text-[#e50914] transition">
                 Actors
             </a>
-            <a href=""
+            <a href="{{ url('/favorites') }}"
                class="font-bold text-black dark:text-white hover:text-[#e50914] transition">
                 Favorites
             </a>

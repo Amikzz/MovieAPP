@@ -39,6 +39,9 @@ Route::middleware(['auth'])->group(function () {
 
     //All the actors
     Route::get('/actors', [DashboardController::class, 'showAllActors'])->name('actors.index');
+
+    //Favorites
+    Route::get('/favorites', [DashboardController::class, 'favorites'])->name('favorites');
 });
 
 Route::middleware(['auth', 'web'])->group(function () {
