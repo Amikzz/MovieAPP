@@ -138,6 +138,7 @@ If you’d like to improve this project, please **fork the repository** and subm
 ## 📬 Contact  
 
 **👩‍💻 Developer:** Amika
+
 **📧 Email:** amikasubasinghe@gmail.com
 
 ---
