@@ -1,4 +1,4 @@
-# 🎬 MovieApp – Your Ultimate Movie & TV Show Explorer  
+# MovieApp – Your Ultimate Movie & TV Show Explorer  
 
 **Built with Laravel & SQL | Powered by TMDB API**
 
