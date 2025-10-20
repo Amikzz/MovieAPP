@@ -129,12 +129,6 @@ If you’d like to improve this project, please **fork the repository** and subm
 
 ---
 
-## 📸 Screenshots
-
-
-
----
-
 ## 📬 Contact  
 
 **👩‍💻 Developer:** Amika
